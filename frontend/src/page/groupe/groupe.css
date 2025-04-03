@@ -1,0 +1,32 @@
+.GroupeSearch {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.CallDownLefts {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-top: 10px;
+  width: 100%;
+}
+.CallDownLefts span #loading {
+  font-weight: bold;
+  font-size: 18px;
+  animation: dimi 1s infinite;
+}
+@keyframes dimi {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.CallDownLeftsText {
+  display: flex;
+}
+.Owngroup {
+  margin-top: 50px;
+}

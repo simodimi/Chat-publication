@@ -1,0 +1,131 @@
+.AppelHome {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  height: 100vh;
+}
+.AppelHomeLeft {
+  width: 30%;
+  border-right: 1px solid white;
+  box-shadow: 1px 0px 5px 0px cyan;
+  height: 100vh;
+}
+.ShowAppel {
+  height: calc(100vh - 130px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: gainsboro white;
+}
+.AppelHomeRight {
+  width: 70%;
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: gainsboro white;
+}
+#Appel {
+  font-weight: bold;
+  text-transform: capitalize;
+  font-size: 20px;
+  padding-left: 10px;
+}
+.AppelContactImg {
+  display: flex;
+  align-items: center;
+}
+.AppelContactImg img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: scale-down;
+}
+.AppelName {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 80%;
+}
+.AppelName p {
+  margin: 0;
+}
+.AppelNameLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.AppelNameLeft p:nth-child(1) {
+  font-weight: 700;
+  font-size: 12px;
+}
+.AppelNameLeft p:nth-child(2) {
+  font-size: 12px;
+}
+.AppelContacts.Appelselects {
+  background-color: green !important;
+  color: white;
+}
+.AppelContact {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+.AppelContacts {
+  width: calc(100% - 20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center !important;
+  padding: 10px;
+  border-radius: 20px;
+  background-color: rgba(220, 220, 220, 0.5);
+  cursor: pointer;
+}
+.AppelContacts:hover {
+  background-color: rgba(220, 220, 220, 1);
+}
+.NameInfosCall {
+  width: 80%;
+  margin: 20px auto;
+  border: 1px solid white;
+  box-shadow: 1px 1px 5px 0px cyan;
+  border-radius: 10px;
+  padding: 15px 5%;
+}
+.NameInfosCallUp {
+  display: flex;
+  justify-content: space-between;
+}
+.CallUpLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.CallUpLeft p {
+  margin: 0;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+.CallUpLeft img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.NameInfosCallDown {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  border-top: 1px solid black;
+}
+.NameInfosCallDown p {
+  margin: 0;
+}
+.CallDownLeft {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+.CallDownRight {
+  margin-top: 10px;
+}

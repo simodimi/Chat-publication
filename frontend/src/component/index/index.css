@@ -1,0 +1,153 @@
+.IndexHome {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  cursor: default;
+}
+a {
+  text-decoration: none;
+  color: black;
+  display: flex;
+  width: 100%;
+}
+.active {
+  background-color: hsl(130, 100%, 50%);
+  width: 100%;
+  height: 26px;
+  gap: 20px;
+  display: flex;
+  align-items: center;
+}
+.IndexHomeLogo {
+  width: 100%;
+  height: 100%;
+}
+.IndexHomeButton {
+  width: 100%;
+  height: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.iconeDescription {
+  display: flex;
+  align-items: center;
+  text-transform: capitalize;
+  font-weight: 600;
+  gap: 20px;
+
+  cursor: pointer;
+  position: relative;
+  padding: 3px 20px;
+  height: 20px;
+}
+.iconeDescriptions {
+  display: flex;
+  align-items: center;
+  text-transform: capitalize;
+  font-weight: 600;
+  gap: 20px;
+  cursor: default;
+  position: relative;
+  padding: 3px 20px;
+}
+.iconeDescription:hover {
+  background-color: hsl(130, 100%, 50%);
+  width: calc(100% - 40px);
+}
+
+.iconeDescription:hover .textAfficher p,
+.iconeDescriptions:hover .textAfficher p {
+  color: green;
+  display: block;
+  animation: free 0.5s linear;
+}
+@keyframes free {
+  0% {
+    margin-top: 10px;
+  }
+  100% {
+    margin-top: 0px;
+  }
+}
+
+.iconeDescription img,
+.iconeDescriptions img {
+  width: 20px;
+  height: 20px;
+}
+.iconeDescription p,
+.iconehaut p,
+.iconeDescriptions p {
+  margin: 0;
+}
+.iconehaut {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-left: 20px;
+  font-weight: bold;
+}
+.iconehaut img {
+  width: 50px;
+  height: 50px;
+}
+.profilpicture {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  position: relative;
+  margin: 20px 0 20px 20px;
+  border-radius: 50%;
+  /*overflow: hidden;*/
+  background-color: aqua;
+}
+.profilpicture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.IndexHomeUp,
+.IndexHomeDown {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+.ShowDescription {
+  font-size: 12px;
+}
+
+.textCompteur {
+  position: absolute;
+  left: 42px;
+  top: -1px;
+}
+.textCompteur p {
+  font-size: 10px;
+  color: green;
+
+  /*   border: 1px solid green;
+    border-radius: 50%;
+    padding: 2px; */
+}
+.textAfficher {
+  position: absolute;
+  top: -20px;
+}
+.profilAfficher p {
+  font-size: 10px;
+  color: green;
+}
+.profilAfficher {
+  position: absolute;
+  top: -30px;
+}
+.textAfficher p {
+  font-size: 10px;
+  color: black;
+  display: none;
+}

@@ -1,0 +1,869 @@
+.StatusHome {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  height: 100vh;
+}
+.StatusHomeLeft {
+  width: 30%;
+  border-right: 1px solid black;
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: gainsboro white;
+}
+.StatusHomeRight {
+  width: 70%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.StatusContact {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-left: 15px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 20px;
+  background-color: rgba(220, 220, 220, 0.5);
+}
+.StatusContact:hover {
+  background-color: rgba(220, 220, 220, 1);
+}
+.StatusName p {
+  margin: 0;
+  font-size: 12px;
+}
+.StatusName p:nth-child(1) {
+  font-weight: 700;
+}
+.StatusContactImg img {
+  margin-top: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.StatusSelect {
+  background-color: green !important;
+  color: white;
+}
+.StatusContactImg {
+  position: relative;
+}
+.StatusContactImg h2 {
+  position: absolute;
+  content: "";
+  border-radius: 50%;
+  border: 3px solid green;
+  width: 40px;
+  height: 40px;
+  left: 50%;
+  top: 2px;
+  transform: translateX(-50%);
+  margin: 0;
+}
+.StatutOwn span {
+  display: flex;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  width: fit-content;
+}
+.CreateStatus {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 80%;
+  height: 80%;
+  border: 1px solid black;
+}
+.showScreen {
+  display: block;
+  width: calc(90% - 40px);
+  height: 500px;
+  padding: 0 20px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.showScreen pre {
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: gainsboro white;
+  text-align: center;
+  white-space: pre-line; /*conserver les espaces et les sauts de ligne*/
+}
+
+.WriteSmsCall {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  justify-content: center;
+  align-items: center;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  margin-bottom: 85px;
+}
+.WriteSmsCall textarea {
+  display: flex;
+  width: calc(90% - 20px);
+  padding: 5px 10px;
+  height: 140px;
+  resize: none;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: gainsboro white;
+}
+.WriteSmsCall span {
+  width: 10%;
+}
+
+.ReadAudio {
+  position: absolute;
+  top: 10px;
+  margin-left: 50%;
+  transform: translate(-50%);
+  width: calc(100% - 10px);
+  height: calc(100% - 20px);
+  z-index: 6000;
+  background-color: white;
+  text-align: center;
+}
+#SubReadAudio {
+  width: 100%;
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#ReadAudio {
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+.ReadAudio p:nth-child(1) {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.ReadAudio p:nth-child(1) span:nth-child(2),
+.ReadAudio p:nth-child(1) span:nth-child(1) {
+  width: fit-content;
+  height: fit-content;
+}
+
+.ReadAudio p:nth-child(1) span:nth-child(2) {
+  min-width: 150px;
+  height: 50px;
+}
+.ReadAudio p:nth-child(1) span:nth-child(3),
+.ReadAudio p:nth-child(1) span:nth-child(4) {
+  width: fit-content;
+  height: fit-content;
+}
+.ReadAudio .CallOption {
+  background-color: transparent;
+}
+.ReadAudio .CallOption p:nth-child(2) span {
+  color: red;
+}
+.CallHomeTextStyle .CallOption {
+  position: absolute;
+  gap: 20px;
+  right: 10px;
+  display: flex;
+  flex-direction: column;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  z-index: 800;
+}
+
+.CallHomeTextStyle .CallOption p {
+  margin: 0;
+  position: relative;
+}
+.CallHomeTextStyle .CallOption p label {
+  text-wrap: nowrap;
+}
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+}
+
+.loader {
+  border: 4px solid #f3f3f3; /* Gris clair */
+  border-top: 4px solid #3498db; /* Couleur du cercle de chargement */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  background-color: #f3f3f3;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.progress {
+  height: 100%;
+  background-color: #3498db;
+  border-radius: 5px;
+  transition: width 0.5s ease-in-out;
+}
+.WriteSmsCalls {
+  position: absolute;
+  top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  width: calc(100% - 10px);
+  height: calc(100% - 20px);
+  z-index: 4000;
+}
+.WriteSmsCalles {
+  position: absolute;
+  margin-bottom: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 600px;
+}
+.AddPicturesPhoto {
+  width: 100%;
+  cursor: pointer !important;
+  height: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  background-color: blue;
+}
+.AddPicturesPhoto:hover {
+  background-color: green !important;
+  color: white;
+}
+
+.showScreens {
+  display: block;
+  width: 100%;
+  height: 500px;
+  padding: 0 0px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+.showScreens p {
+  font-size: 24px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+.showScreens img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.showScreens video {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+#showScreensPhoto {
+  width: 100%;
+  border-radius: 0;
+  height: 100%;
+  object-fit: scale-down;
+}
+
+.showScreenx {
+  display: flex;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  height: 350px;
+  position: absolute;
+  top: 25%; /*top: 2%;*/
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  text-align: justify;
+  overflow: hidden;
+}
+
+.EmojiHomes {
+  display: flex;
+  position: absolute;
+  left: -32%;
+  bottom: 10%;
+  z-index: 1000;
+}
+#publish {
+  position: absolute;
+  height: 10%;
+  padding: 0 40px;
+  border-radius: 10px;
+  background-color: green;
+  color: white;
+  border: none;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+.ViewOption {
+  position: absolute;
+  display: flex;
+  margin-left: 0px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 400px;
+}
+.ViewOptionSelection .CallOption {
+  background-color: transparent;
+}
+.ViewOptionSelection {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 10px 5px;
+  background-color: #f5f5f5;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+}
+.ViewOptionSelection .CallOption p:hover label {
+  display: block;
+  animation: free 0.3s linear;
+}
+@keyframes free {
+  0% {
+    margin-top: 30px;
+  }
+  100% {
+    margin-top: -10px;
+  }
+}
+.ViewOptionSelection .CallOption p label {
+  display: none;
+  color: black;
+  font-size: 12px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: -10px;
+  text-wrap: nowrap;
+}
+.showScreenx .showScreenImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.WriteSmsCallx .StartCamera,
+.WriteSmsCallx .TakeCamera {
+  display: flex;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+/*.showScreenVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}*/
+.showScreenVideo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /*display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  gap: 20px;*/
+}
+
+/* Styles pour les cercles de statut */
+.status-circle {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #25d366, #128c7e);
+  z-index: -1;
+  animation: rotate 3s linear infinite;
+}
+
+.status-circle-viewed {
+  background: linear-gradient(45deg, #128c7e, #075e54);
+}
+
+.status-circle-unviewed {
+  background: linear-gradient(45deg, #25d366, #128c7e);
+}
+
+.status-circle-half {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #128c7e, #075e54);
+  z-index: -1;
+  clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%);
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.status-profile-image {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid white;
+}
+
+.status-profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Styles pour la liste des statuts */
+.status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.status-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.status-info {
+  flex: 1;
+}
+
+.status-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.status-time {
+  font-size: 12px;
+  color: #667781;
+}
+
+/* Styles pour la visualisation des statuts */
+.status-viewer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.status-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.status-content img,
+.status-content video {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.status-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.status-progress-bar {
+  height: 100%;
+  background-color: white;
+  transition: width 1s linear;
+}
+
+.status-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+}
+
+.status-control-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Styles pour les filtres */
+.filter-container {
+  position: absolute;
+  bottom: 80px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.filter-option {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: transform 0.2s;
+}
+
+.filter-option:hover {
+  transform: scale(1.1);
+}
+
+/* Styles pour les messages vocaux */
+.audio-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.audio-progress {
+  flex: 1;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.audio-progress-bar {
+  height: 100%;
+  background-color: white;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+.audio-time {
+  color: white;
+  font-size: 14px;
+}
+
+/* Styles pour le composant Audio */
+.audio-recorder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.audio-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.audio-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  background-color: #1976d2;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.audio-button:hover {
+  background-color: #1565c0;
+}
+
+.audio-button.delete {
+  background-color: #dc3545;
+}
+
+.audio-button.delete:hover {
+  background-color: #c82333;
+}
+
+.audio-canvas {
+  width: 100%;
+  height: 100px;
+  background-color: #ffffff;
+  border-radius: 5px;
+  margin: 10px 0;
+}
+
+.audio-timer {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #1976d2;
+  margin: 10px 0;
+}
+
+.audio-preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.audio-preview audio {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.save-audio-button {
+  padding: 8px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.save-audio-button:hover {
+  background-color: #388e3c;
+}
+.CallHomeButton {
+  display: flex;
+  justify-content: end;
+  margin-right: 10px;
+}
+.principaloption {
+  display: flex;
+  justify-content: center;
+}
+.principaloption .CallOption {
+  display: flex;
+  gap: 10px;
+}
+.principaloption .CallOption p {
+  position: relative;
+}
+.principaloption .CallOption p label {
+  text-wrap: nowrap;
+}
+
+.mobile-emoji {
+  position: absolute;
+  cursor: move;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: transparent;
+  padding: 2px;
+  border-radius: 4px;
+  transition: transform 0.2s ease;
+}
+
+.mobile-emoji:hover {
+  transform: scale(1.1);
+}
+
+.mobile-emoji button {
+  cursor: pointer;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-emoji:hover button {
+  opacity: 1;
+}
+
+.showScreen {
+  position: relative;
+  min-height: 350px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.showScreen pre {
+  position: relative;
+  min-height: 100%;
+  padding: 20px;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.audioMenu {
+  width: 100%;
+  height: 100%;
+}
+.audioMenu .LaunchAudios {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center !important;
+  gap: 50px;
+}
+.audioMenu .LaunchAudios .AudioHeaders {
+  display: flex;
+  width: 100%;
+}
+.audioMenu .LaunchAudios .AudioHeaders .audioControls {
+  flex: 1;
+  justify-content: center;
+  height: fit-content;
+  margin: 0;
+}
+.audioMenu .LaunchAudios .AudioHeaders canvas {
+  flex: 4;
+  background-color: #fff;
+  height: 150px;
+  margin: 0;
+}
+.audioMenu .LaunchAudios .AudioHeaders .audioTimers {
+  flex: 1;
+  display: flex;
+  justify-content: center !important;
+  align-items: center !important;
+  height: fit-content;
+  margin: 0;
+}
+.audioPreviews {
+  display: flex;
+  justify-content: center;
+}
+.showSreamVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.videoHeaders {
+  position: absolute;
+  display: flex;
+  gap: 30px;
+  left: 50%;
+  top: 90%;
+  transform: translate(-50%, -50%);
+  border: 1px solid cyan;
+  padding: 20px 30px;
+  z-index: 1000;
+}
+.controlsvideoscream {
+  display: flex;
+  gap: 40px;
+}

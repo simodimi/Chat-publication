@@ -1,0 +1,25 @@
+.App{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 100vh;
+    cursor: default;
+}
+.IndexLeft{
+    width: 20%;
+    height: 100%;
+    background-color: hsl(100, 7%, 91%);
+}
+.IndexCenter{
+   width: 60%;
+    height: 100vh;
+}
+
+.IndexRight{
+   width: 20%;
+    height: 100vh;
+    background-color: aqua;
+}

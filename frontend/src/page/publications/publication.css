@@ -1,0 +1,485 @@
+.PublicationHome {
+  width: calc(100% - 40px);
+  height: calc(100% - 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.PublicationTitle {
+  width: calc(100% - 20px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.PublicationTitle-Img {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.PublicationTitle-Img img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.PublicationTitle-Selection {
+  display: flex;
+  gap: 15px;
+}
+
+.CreateGroupe {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #f0f2f5;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.CreateGroupe:hover {
+  background-color: #1877f2;
+  color: white;
+}
+
+.PublicationShow {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.PublicationPost {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: visible;
+}
+
+.PublicationPost-Menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #e4e6eb;
+}
+
+.PublicationPost-Menu p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.PublicationPost-Menu p img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.PublicationPost-Menu-Icon {
+  position: relative;
+}
+
+.ListPublicationPost {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 250px;
+  width: 100%;
+}
+
+.ListPublicationPost p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin: 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.ListPublicationPost p:hover {
+  background-color: #f0f2f5;
+}
+
+.TextePublication {
+  padding: 12px;
+}
+
+.HeaderPublication {
+  margin-bottom: 12px;
+}
+
+.HeaderPublication p {
+  margin: 0;
+  word-break: keep-all;
+  text-align: justify;
+  line-height: 1.5;
+}
+.HeaderPublication-Text span {
+  background-color: blue;
+  color: white;
+  font-family: Roboto;
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  width: fit-content;
+}
+
+.HealthPublication {
+  width: 100%;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.HealthPublication img,
+.HealthPublication video {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.LikingPublication {
+  border-top: 1px solid #e4e6eb;
+  box-shadow: 0px -1px 0px 0px cyan;
+  padding: 12px 0;
+}
+
+.LikingUp {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 8px;
+}
+
+.LikingUp p {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  color: #65676b;
+}
+
+.LikingDown {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 8px;
+  border-top: 1px solid #e4e6eb;
+  box-shadow: 0px -1px 0px 0px cyan;
+}
+
+.LikingDown p {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: background-color 0.2s;
+}
+
+.LikingDown p:hover {
+  background-color: #f0f2f5;
+}
+
+.CommentArea {
+  margin-top: 12px;
+}
+
+.PublicationCommentaire {
+  padding: 12px;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+}
+
+.WrittingPrincipalComment {
+  width: calc(100% - 24px);
+}
+
+.WrittingPrincipalComment form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.WrittingPrincipalComment textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #e4e6eb;
+  border-radius: 8px;
+  resize: none;
+  font-family: inherit;
+}
+
+.OptionComment {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: calc(100% + 24px);
+  position: relative;
+}
+
+.OptionComment p {
+  display: flex;
+  gap: 15px;
+  margin: 0;
+}
+
+.ButtonMenu {
+  cursor: pointer;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.ButtonMenu:hover {
+  color: #1877f2;
+}
+
+#emoji {
+  position: absolute;
+  bottom: -420px;
+  left: 7%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+#photoCommentaire {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.PrioritySms,
+.SecondarySms,
+.ThirdSms {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.SmsWrite {
+  flex: 1;
+}
+
+.SmsWrite p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.SmsWrite span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #65676b;
+  font-size: 0.9em;
+}
+
+.SmsWrite span img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.SmsOptionLiking {
+  display: flex;
+  gap: 15px;
+  margin-top: 8px;
+}
+
+.SmsOptionLiking p {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  cursor: pointer;
+  color: #65676b;
+  font-size: 0.9em;
+}
+
+.SmsLike {
+  display: flex;
+  align-items: center;
+}
+
+.SmsLike span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #65676b;
+  font-size: 0.9em;
+}
+
+#likePriority {
+  color: #1877f2;
+}
+
+#likes {
+  cursor: pointer;
+}
+
+#likes:hover {
+  color: #1877f2;
+}
+
+/* Styles pour la visionneuse de médias */
+.MuiDialog-paper {
+  background-color: rgba(102, 145, 211, 0.2) !important;
+  color: white !important;
+}
+
+.MuiDialogContent-root {
+  padding: 0 !important;
+  color: white !important;
+}
+
+.MuiIconButton-root {
+  color: white !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  margin: 0 10px !important;
+}
+
+.MuiIconButton-root:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+.CreateGroupeInput {
+  padding: 0 20px !important;
+  width: calc(100% - 40px) !important;
+}
+.CreateGroupeInput label {
+  margin-left: 20px !important;
+}
+
+.Comment {
+  margin: 16px 0;
+  padding: 12px;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+}
+
+.CommentContent {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.CommentContent img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.CommentAuthor {
+  font-weight: bold;
+  margin: 0;
+}
+
+.CommentText {
+  margin: 4px 0;
+  word-break: break-word;
+}
+
+.CommentActions {
+  display: flex;
+  gap: 16px;
+  margin-left: 44px;
+}
+.CommentActions p {
+  cursor: pointer;
+}
+
+.CommentActions button {
+  background: none;
+  border: none;
+  color: #65676b;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.CommentActions button:hover {
+  background-color: #e4e6eb;
+}
+
+.Replies {
+  margin-left: 44px;
+  margin-top: 8px;
+}
+
+.Reply {
+  margin: 8px 0;
+  padding: 8px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+
+.ReplyContent {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ReplyContent img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ReplyAuthor {
+  font-weight: bold;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.ReplyText {
+  margin: 2px 0;
+  word-break: break-word;
+  font-size: 0.9em;
+}
+
+.ReplyActions {
+  display: flex;
+  gap: 12px;
+  margin-left: 32px;
+}
+
+.ReplyActions button {
+  background: none;
+  border: none;
+  color: #65676b;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.ReplyActions button:hover {
+  background-color: #e4e6eb;
+}
