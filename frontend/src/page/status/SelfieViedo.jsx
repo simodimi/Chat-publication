@@ -1,7 +1,12 @@
+/**
+ * Composant SelfieViedo - Permet de capturer des vidéos selfie pour les statuts
+ * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
+ * @param {boolean} menuaction - État du menu
+ * @param {boolean} SeeButton - État de visibilité du bouton
+ * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
+ */
 import React, { useState, useRef, useEffect } from "react";
 import "./status.css";
-import { FaMicrophone, FaPause, FaPlay, FaStop, FaVideo } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
 
 const SelfieViedo = ({
   setMenuaction,
@@ -11,29 +16,26 @@ const SelfieViedo = ({
 }) => {
   // Références pour la vidéo et le canvas
   const videoRef = useRef(null);
-  // const canvasRef = useRef(null);
+  const canvasRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
-  const timerRef = useRef(null);
 
   // États pour gérer l'enregistrement
   const [isRecording, setIsRecording] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState(null);
   const [timer, setTimer] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+
   /**
    * Démarre la caméra
    */
-  const startRecording = async () => {
+  const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
         audio: true,
       });
       videoRef.current.srcObject = stream;
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: "video/webm;codecs=vp8,opus",
-      });
+      mediaRecorderRef.current = new MediaRecorder(stream);
       chunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = (e) => {
@@ -46,211 +48,135 @@ const SelfieViedo = ({
         const blob = new Blob(chunksRef.current, { type: "video/webm" });
         const videoUrl = URL.createObjectURL(blob);
         setRecordedVideo(videoUrl);
-        //setIsRecording(false);
-        stopTimer();
-        stream.getTracks().forEach((track) => track.stop());
+        setIsRecording(false);
+        setTimer(0);
       };
-
-      mediaRecorderRef.current.start();
-      //setIsRecording(true);
-      setIsRecording(false);
-      startTimer();
-      setIsPaused(false);
     } catch (error) {
       console.error("Erreur lors du démarrage de la caméra:", error);
     }
   };
 
-  const stopRecording = () => {
-    setIsRecording(true);
-    setRecordedVideo(null); //
-    document.querySelector(".videoHeaders").style.display = "none";
+  /**
+   * Démarre l'enregistrement
+   */
+  const startRecording = () => {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state === "inactive"
+    ) {
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+      setTimer(0);
+    }
+  };
 
+  /**
+   * Arrête l'enregistrement
+   */
+  const stopRecording = () => {
     if (
       mediaRecorderRef.current &&
       mediaRecorderRef.current.state === "recording"
     ) {
       mediaRecorderRef.current.stop();
+      setIsRecording(false);
     }
   };
 
-  const [selectedImage, setselectedImage] = useState(false);
-  const otherAudio = () => {
-    setRecordedVideo(null);
-    // setselectedImage(true);
-    setIsRecording(true);
-    document.querySelector(".videoHeaders").style.display = "block";
-    setTimer(0);
-  };
-  const handlestartvideo = () => {
-    setRecordedVideo(null);
-    setselectedImage(true);
-    setIsRecording(true); //false
-  };
-  // Gestion du timer✏️
-  const startTimer = () => {
-    timerRef.current = setInterval(() => {
-      setTimer((prev) => prev + 1);
-    }, 1000);
-  };
-
-  const stopTimer = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-  };
-  // Formater le temps✏️
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs //afficher le temps
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
-  const deleteRecording = () => {
+  /**
+   * Réinitialise l'enregistrement
+   */
+  const resetRecording = () => {
     setRecordedVideo(null);
     setTimer(0);
-    setIsPaused(false);
-    setselectedImage(false);
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.stream
-        .getTracks()
-        .forEach((track) => track.stop());
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null;
     }
   };
 
-  const pauseRecording = () => {
-    if (mediaRecorderRef.current && isPaused === false) {
-      mediaRecorderRef.current.pause();
-      setIsPaused(true); //true
-      stopTimer();
+  /**
+   * Sauvegarde la vidéo
+   */
+  const saveVideo = () => {
+    if (recordedVideo) {
+      // Ici, vous pouvez implémenter la logique pour sauvegarder la vidéo
+      console.log("Vidéo sauvegardée:", recordedVideo);
+      setMenuaction(false);
+      setSeeButton(false);
     }
   };
 
-  const resumeRecording = () => {
-    if (mediaRecorderRef.current && isPaused) {
-      mediaRecorderRef.current.resume();
-      setIsPaused(false);
-      startTimer();
+  // Effet pour gérer le timer pendant l'enregistrement
+  useEffect(() => {
+    let interval;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev + 1);
+      }, 1000);
     }
-  };
+    return () => clearInterval(interval);
+  }, [isRecording]);
+
+  // Nettoyage lors du démontage du composant
+  useEffect(() => {
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+        videoRef.current.srcObject = null;
+      }
+    };
+  }, []);
 
   return (
-    <div className="WriteSmsCalles">
-      <div className="showScreens" style={{ position: "relative" }}>
-        {selectedImage ? (
-          <div className="audioMenu" style={{ position: "relative" }}>
-            <div className="LaunchAudios" style={{ position: "relative" }}>
-              {recordedVideo ? (
-                <video
-                  src={recordedVideo}
-                  controls
-                  className="showScreenVideos"
-                />
-              ) : (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="showSreamVideo"
-                />
-              )}
-              {/*isRecording ? (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="showSreamVideo"
-                />
-              ) : recordedVideo ? (
-                <video
-                  src={recordedVideo}
-                  controls
-                  className="showScreenVideos"
-                />
-              ) : (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="showSreamVideo"
-                />
-              )*/}
-              <div className="videoHeaders">
-                <div className="controlsvideoscream">
-                  <div className="audioControls">
-                    {isRecording ? (
-                      <div className="CallOption" onClick={startRecording}>
-                        <p>
-                          <span className="ButtonMenu">
-                            <FaVideo color=" #1976d2" />
-                          </span>
-                          <label> Démarrer</label>
-                        </p>
-                      </div>
-                    ) : (
-                      <>
-                        {isPaused ? (
-                          <div className="CallOption" onClick={resumeRecording}>
-                            <p>
-                              <span className="ButtonMenu">
-                                <FaPlay color=" green" />
-                              </span>
-                              <label> Reprendre</label>
-                            </p>
-                          </div>
-                        ) : (
-                          <div className="CallOption" onClick={pauseRecording}>
-                            <p>
-                              <span className="ButtonMenu">
-                                <FaPause color=" #1976d2" />
-                              </span>
-                              <label> Pause</label>
-                            </p>
-                          </div>
-                        )}
-                        <div className="CallOption" onClick={stopRecording}>
-                          <p>
-                            <span className="ButtonMenu">
-                              <FaStop color="tomato" />
-                            </span>
-                            <label> Arrêter</label>
-                          </p>
-                        </div>
-                      </>
-                    )}
-
-                    <div className="CallOption" onClick={deleteRecording}>
-                      <p>
-                        <span className="ButtonMenu">
-                          <MdDelete color="red" />
-                        </span>
-                        <label>Supprimer</label>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="audioTimers">{formatTime(timer)}</div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <div className="WriteSmsCallx">
+      {/* Zone d'affichage de la vidéo */}
+      <div className="showScreenx">
+        {recordedVideo ? (
+          <video src={recordedVideo} controls className="showScreenVideo" />
         ) : (
-          <p>prendre une vidéo...</p>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            className="showScreenVideo"
+          />
         )}
       </div>
-      <div className="AddPicturesPhoto">
-        <>
-          {!recordedVideo ? (
-            <span onClick={handlestartvideo}>
-              faire un enregistrement vidéo
-            </span>
-          ) : (
-            <span onClick={otherAudio}>Remplacer l'enregistrement</span>
-          )}
-        </>
+
+      {/* Contrôles de la caméra */}
+      <div className="camera-controls">
+        {!recordedVideo ? (
+          <>
+            {!isRecording ? (
+              <button onClick={startRecording} className="ButtonMenu">
+                Démarrer l'enregistrement
+              </button>
+            ) : (
+              <button onClick={stopRecording} className="ButtonMenu">
+                Arrêter l'enregistrement
+              </button>
+            )}
+            <span className="timer">{timer}s</span>
+          </>
+        ) : (
+          <>
+            <button onClick={saveVideo} className="ButtonMenu">
+              Sauvegarder
+            </button>
+            <button onClick={resetRecording} className="ButtonMenu">
+              Réessayer
+            </button>
+          </>
+        )}
       </div>
+
+      {/* Bouton pour démarrer la caméra */}
+      {!videoRef.current?.srcObject && (
+        <button onClick={startCamera} className="ButtonMenu">
+          Démarrer la caméra
+        </button>
+      )}
     </div>
   );
 };

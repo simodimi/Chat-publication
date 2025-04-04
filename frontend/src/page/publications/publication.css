@@ -64,7 +64,7 @@
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: visible;
+  overflow: hidden;
 }
 
 .PublicationPost-Menu {
@@ -213,7 +213,7 @@
 }
 
 .WrittingPrincipalComment {
-  width: calc(100% - 24px);
+  width: 100%;
 }
 
 .WrittingPrincipalComment form {
@@ -236,8 +236,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: calc(100% + 24px);
-  position: relative;
 }
 
 .OptionComment p {
@@ -258,8 +256,9 @@
 
 #emoji {
   position: absolute;
-  bottom: -420px;
-  left: 7%;
+  bottom: 100%;
+  left: 0;
+  background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
@@ -407,9 +406,6 @@
   display: flex;
   gap: 16px;
   margin-left: 44px;
-}
-.CommentActions p {
-  cursor: pointer;
 }
 
 .CommentActions button {

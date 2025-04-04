@@ -1,18 +1,27 @@
+/**
+ * Composant Selfie - Gère la capture de selfies avec la caméra
+ * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
+ * @param {boolean} menuaction - État du menu
+ * @param {boolean} SeeButton - État de visibilité du bouton
+ * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
+ */
 import React from "react";
 import { useRef } from "react";
 import { useState, useEffect } from "react";
 import { background } from "./test";
 
-const Selfie = ({ setMenuaction, setPublication, setSeeButton }) => {
+const Selfie = ({ setMenuaction, menuaction, SeeButton, setSeeButton }) => {
   // État pour stocker l'image du selfie
   const [selfie, setSelfie] = useState(null);
   // État pour gérer le flux vidéo de la caméra
   const [stream, setStream] = useState(null);
-  const [launch, setLaunch] = useState(false);
   // Références pour accéder aux éléments DOM de la vidéo et du canvas
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
+  /**
+   * Démarre la caméra et configure le flux vidéo
+   */
   const startCamera = async () => {
     try {
       // Demande l'accès à la caméra
@@ -50,7 +59,7 @@ const Selfie = ({ setMenuaction, setPublication, setSeeButton }) => {
     // Convertit le contenu du canvas en URL de données d'image
     const imageData = canvas.toDataURL("image/png");
     setSelfie(imageData);
-    document.querySelector(".showScreens").style.display = "block";
+    document.querySelector(".showScreenx").style.display = "block";
     // Arrête la caméra après la capture
     stopCamera();
   };
@@ -62,27 +71,21 @@ const Selfie = ({ setMenuaction, setPublication, setSeeButton }) => {
     if (stream) {
       // Arrête tous les tracks du stream
       stream.getTracks().forEach((track) => track.stop());
-      if (videoRef.current) {
-        videoRef.current.srcObject = null;
-      }
       setStream(null);
     }
   };
-  useEffect(() => {
-    if (selfie) {
-      setPublication(true);
-    } else {
-      setPublication(false);
-    }
-  }, [selfie]);
 
-  const handleselection = () => {
-    setLaunch(true);
-  };
+  // Effet pour nettoyer le stream de la caméra lors du démontage du composant
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
   return (
-    <div className="WriteSmsCalles">
+    <div className="WriteSmsCallx">
       {/* Zone d'affichage du selfie */}
-      <div className="showScreens" style={{ position: "relative" }}>
+      <div className="showScreenx">
         {selfie ? (
           <img src={selfie} alt="Selfie" className="showScreenImg" />
         ) : (
@@ -97,33 +100,42 @@ const Selfie = ({ setMenuaction, setPublication, setSeeButton }) => {
             Prendre un selfie...
           </p>
         )}
-        <div className="showScreenVideo">
-          <video
-            ref={videoRef}
-            style={{ display: selfie ? "none" : "block" }}
-          />
-        </div>
       </div>
+      {/* Élément vidéo pour afficher le flux de la caméra */}
+      <video
+        ref={videoRef}
+        style={{ display: selfie ? "none" : "block" }}
+        className="showScreenVideo"
+      />
+      {/* Canvas caché pour capturer l'image */}
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      <div className="AddPicturesPhoto">
-        {!selfie ? (
-          !stream ? (
-            <span onClick={startCamera}> Faire un selfie</span>
-          ) : (
-            <span onClick={captureSelfie}> 📸 Capturer</span>
-          )
-        ) : (
-          <span
-            onClick={() => {
-              setSelfie(null);
-              startCamera();
-            }}
-          >
-            Prendre à nouveau un selfie
-          </span>
-        )}
-      </div>
+      {/* Boutons conditionnels basés sur l'état de la caméra et du selfie */}
+      {!selfie && !stream && (
+        <div className="StartCamera">
+          <button onClick={startCamera} className="ButtonMenu">
+            Démarrer la caméra
+          </button>
+        </div>
+      )}
+      {stream && !selfie && (
+        <div className="TakeCamera">
+          <button onClick={captureSelfie} className="ButtonMenu">
+            Prendre un selfie
+          </button>
+        </div>
+      )}
+      {selfie && (
+        <button
+          onClick={() => {
+            setSelfie(null);
+            startCamera();
+          }}
+          className="ButtonMenu"
+        >
+          Reprendre un selfie
+        </button>
+      )}
     </div>
   );
 };

@@ -1,28 +1,22 @@
 import React from "react";
-import { emoji } from "./test";
+import { couleur } from "./test";
 
-const EmojiMobile = ({ onEmojSelect }) => {
+const StyleBackground = ({ ChangeColorText }) => {
   return (
     <div className="ViewOption">
       <div className="ViewOptionSelection">
-        {emoji.map((p) => (
+        {couleur.map((p) => (
           <div className="CallOption">
             <p>
               <span
                 className="ButtonMenu"
-                onClick={() => onEmojSelect(p.emoji)}
+                onClick={() => ChangeColorText(p.couleur)}
                 style={{
                   backgroundColor: p.couleur,
                   width: "50px",
                   height: "30px",
-                  fontSize: "25px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
                 }}
-              >
-                {p.emoji}
-              </span>
+              ></span>
               <label>{p.nom}</label>
             </p>
           </div>
@@ -32,4 +26,4 @@ const EmojiMobile = ({ onEmojSelect }) => {
   );
 };
 
-export default EmojiMobile;
+export default StyleBackground;

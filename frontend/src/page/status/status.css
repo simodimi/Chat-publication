@@ -82,6 +82,7 @@
   height: 80%;
   border: 1px solid black;
 }
+/*
 .showScreen {
   display: block;
   width: calc(90% - 40px);
@@ -101,27 +102,29 @@
   scrollbar-width: thin;
   scrollbar-color: gainsboro white;
   text-align: center;
-  white-space: pre-line; /*conserver les espaces et les sauts de ligne*/
+  white-space: pre-line; 
 }
-
+*/
 .WriteSmsCall {
   position: absolute;
   bottom: 0;
   display: flex;
-  flex-direction: column;
-  gap: 40px;
   justify-content: center;
   align-items: center;
   margin-left: 50%;
   transform: translateX(-50%);
   width: 80%;
-  margin-bottom: 85px;
+  /* flex-direction: column;
+  gap: 40px;
+  margin-bottom: 85px;  
+  */
 }
 .WriteSmsCall textarea {
   display: flex;
   width: calc(90% - 20px);
   padding: 5px 10px;
-  height: 140px;
+  height: 80px;
+  /*height:140px*/
   resize: none;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -254,55 +257,20 @@
 }
 .WriteSmsCalles {
   position: absolute;
-  margin-bottom: 50%;
+  top: 10px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80%;
-  height: 600px;
+  transform: translateX(-50%);
+  background-color: white;
+  width: calc(100% - 10px);
+  height: calc(100% - 20px);
 }
-.AddPicturesPhoto {
-  width: 100%;
-  cursor: pointer !important;
-  height: 70px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  background-color: blue;
-}
-.AddPicturesPhoto:hover {
-  background-color: green !important;
-  color: white;
-}
-
 .showScreens {
-  display: block;
   width: 100%;
-  height: 500px;
-  padding: 0 0px;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.1);
-}
-.showScreens p {
-  font-size: 24px;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-}
-.showScreens img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
 }
 .showScreens video {
   width: 100%;
@@ -315,7 +283,21 @@
   height: 100%;
   object-fit: scale-down;
 }
-
+.showScreen {
+  display: flex;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  height: 280px;
+  position: absolute;
+  bottom: 120%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(0, 0, 0, 0.1);
+  text-align: justify;
+  overflow: hidden;
+}
 .showScreenx {
   display: flex;
   left: 50%;
@@ -331,13 +313,21 @@
   text-align: justify;
   overflow: hidden;
 }
-
+.showScreen pre {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  white-space: pre-line; /*conserver les espaces et les sauts de ligne*/
+}
 .EmojiHomes {
   display: flex;
   position: absolute;
-  left: -32%;
-  bottom: 10%;
+  top: -15px;
+  right: -45%;
   z-index: 1000;
+  /*left:-32%;*/
+  /*bottom:10%*/
 }
 #publish {
   position: absolute;
@@ -415,21 +405,18 @@
   height: 100%;
   object-fit: cover;
 }*/
-.showScreenVideo {
+.WriteSmsCallx,
+.WriteSmsCallx .showScreenVideo {
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /*display: flex;
+  bottom: 10%;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  gap: 20px;*/
+  gap: 20px;
 }
 
 /* Styles pour les cercles de statut */
@@ -752,118 +739,4 @@
 }
 .principaloption .CallOption p label {
   text-wrap: nowrap;
-}
-
-.mobile-emoji {
-  position: absolute;
-  cursor: move;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background-color: transparent;
-  padding: 2px;
-  border-radius: 4px;
-  transition: transform 0.2s ease;
-}
-
-.mobile-emoji:hover {
-  transform: scale(1.1);
-}
-
-.mobile-emoji button {
-  cursor: pointer;
-  background-color: red;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.mobile-emoji:hover button {
-  opacity: 1;
-}
-
-.showScreen {
-  position: relative;
-  min-height: 350px;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.showScreen pre {
-  position: relative;
-  min-height: 100%;
-  padding: 20px;
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-.audioMenu {
-  width: 100%;
-  height: 100%;
-}
-.audioMenu .LaunchAudios {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center !important;
-  gap: 50px;
-}
-.audioMenu .LaunchAudios .AudioHeaders {
-  display: flex;
-  width: 100%;
-}
-.audioMenu .LaunchAudios .AudioHeaders .audioControls {
-  flex: 1;
-  justify-content: center;
-  height: fit-content;
-  margin: 0;
-}
-.audioMenu .LaunchAudios .AudioHeaders canvas {
-  flex: 4;
-  background-color: #fff;
-  height: 150px;
-  margin: 0;
-}
-.audioMenu .LaunchAudios .AudioHeaders .audioTimers {
-  flex: 1;
-  display: flex;
-  justify-content: center !important;
-  align-items: center !important;
-  height: fit-content;
-  margin: 0;
-}
-.audioPreviews {
-  display: flex;
-  justify-content: center;
-}
-.showSreamVideo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.videoHeaders {
-  position: absolute;
-  display: flex;
-  gap: 30px;
-  left: 50%;
-  top: 90%;
-  transform: translate(-50%, -50%);
-  border: 1px solid cyan;
-  padding: 20px 30px;
-  z-index: 1000;
-}
-.controlsvideoscream {
-  display: flex;
-  gap: 40px;
 }

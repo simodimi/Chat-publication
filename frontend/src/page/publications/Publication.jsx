@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./publication.css";
 import { IoSend } from "react-icons/io5";
 import noname from "../../assets/icone/personne.jpeg";
-import { FaCirclePlus, FaPlay } from "react-icons/fa6";
+import { FaCirclePlus } from "react-icons/fa6";
 import { FaPenAlt } from "react-icons/fa";
 import { MdMenu } from "react-icons/md";
 import { CiSaveDown2 } from "react-icons/ci";
@@ -43,10 +43,7 @@ const Publication = () => {
 
   // Gestion de la publication
   const handlePublish = (publication) => {
-    const uniqueId = Date.now(); //add
-    const newPublication = { ...publication, id: uniqueId }; //add
-
-    setPublications((prev) => [newPublication, ...prev]); //ajouter la publication au début de la liste
+    setPublications((prev) => [publication, ...prev]); //ajouter la publication au début de la liste
   };
 
   // Gestion de la visionneuse de médias
@@ -127,21 +124,16 @@ const Publication = () => {
         return updatedComments;
       });
     } else {
-      setLikes((prev) => {
-        const currentLikes = prev[publicationId] || {
-          count: 0,
-          isLiked: false,
-        };
-        return {
-          ...prev,
-          [publicationId]: {
-            count: currentLikes.isLiked
-              ? currentLikes.count - 1
-              : currentLikes.count + 1,
-            isLiked: !currentLikes.isLiked,
-          },
-        };
-      });
+      // Like d'une publication
+      setLikes((prev) => ({
+        ...prev,
+        [publicationId]: {
+          count:
+            (prev[publicationId]?.count || 0) +
+            (prev[publicationId]?.isLiked ? -1 : 1),
+          isLiked: !prev[publicationId]?.isLiked,
+        },
+      }));
     }
   };
 
@@ -216,7 +208,6 @@ const Publication = () => {
       ...prev,
       [publicationId]: false,
     }));
-    setEmoji({});
   };
 
   // Gestion du menu pour chaque publication
@@ -385,7 +376,7 @@ const Publication = () => {
                       height: "100%",
                     }}
                   >
-                    {publication.media.slice(0, 4).map((media, mediaIndex) => (
+                    {publication.media.map((media, mediaIndex) => (
                       <div
                         key={mediaIndex}
                         style={{
@@ -408,43 +399,18 @@ const Publication = () => {
                             }}
                           />
                         ) : (
-                          <div className="" style={{ position: "relative" }}>
-                            <video
-                              src={media.url}
-                              style={{
-                                width: "100%",
-                                height: "100%",
-                                objectFit: "cover",
-                              }}
-                              muted
-                            />
-                            <div
-                              className=""
-                              style={{
-                                position: "absolute",
-                                top: "50%",
-                                left: "50%",
-                                transform: "translate(-50%, -50%)",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  color: "white",
-
-                                  cursor: "pointer",
-                                  border: "1px solid white",
-                                  margin: "0 ",
-                                  padding: "10px",
-                                }}
-                              >
-                                <FaPlay />
-                              </span>
-                            </div>
-                          </div>
+                          <video
+                            src={media.url}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                            }}
+                            muted
+                          />
                         )}
-                        {publication.media.length > 4 && mediaIndex === 3 && (
+                        {publication.media.length > 2 && mediaIndex === 1 && (
                           <div
-                            onClick={(e) => openMediaViewer(publication, 4)}
                             style={{
                               position: "absolute",
                               top: "50%",
@@ -454,11 +420,9 @@ const Publication = () => {
                               color: "white",
                               padding: "8px 16px",
                               borderRadius: "20px",
-                              cursor: "pointer",
                             }}
                           >
-                            {" "}
-                            + {publication.media.length - 4}
+                            + {publication.media.length - 2}
                           </div>
                         )}
                       </div>
@@ -492,18 +456,12 @@ const Publication = () => {
                 <div className="LikingUp">
                   <p>
                     <AiTwotoneLike id="like" />
-                    <span>
-                      {likes[publication.id]?.count > 0
-                        ? likes[publication.id]?.count
-                        : ""}
-                    </span>
+                    <span>{likes[publication.id]?.count || 0}</span>
                   </p>
-                  {comments[publication.id]?.length > 0 && (
-                    <p>
-                      {comments[publication.id]?.length} commentaire
-                      {comments[publication.id]?.length !== 1 ? "s" : ""}
-                    </p>
-                  )}
+                  <p>
+                    {comments[publication.id]?.length || 0} commentaire
+                    {comments[publication.id]?.length !== 1 ? "s" : ""}
+                  </p>
                 </div>
                 <div className="LikingDown">
                   <p onClick={() => handleLike(publication.id)}>
@@ -531,24 +489,12 @@ const Publication = () => {
                           src={comment.photo}
                           alt=""
                           className="CommentPhoto"
-                          style={{
-                            width: "100%",
-                            maxWidth: "500px",
-                            maxHeight: "300px",
-                            height: "100%",
-                            objectFit: "scale-down",
-                            borderRadius: "0",
-                            margin: "10px 0",
-                          }}
                         />
                       )}
                     </div>
                   </div>
 
-                  <div
-                    className="CommentActions"
-                    style={{ backgroundColor: "red!important" }}
-                  >
+                  <div className="CommentActions">
                     <p onClick={() => handleLike(publication.id, comment.id)}>
                       <AiTwotoneLike /> Like{" "}
                       {comment.likes > 0 && comment.likes}
@@ -625,14 +571,12 @@ const Publication = () => {
                           <IoMdPhotos
                             onClick={showImage}
                             className="ButtonMenu"
-                            color="green"
                           />
                         </span>
                         <span>
                           <MdEmojiEmotions
                             onClick={() => toggleEmoji(publication.id)}
                             className="ButtonMenu"
-                            color="blue"
                           />
                           {emojis[publication.id] && (
                             <div className="" id="emoji">
@@ -645,13 +589,7 @@ const Publication = () => {
                           )}
                         </span>
                       </p>
-                      <button
-                        type="submit"
-                        style={{
-                          border: "none",
-                          display: "flex",
-                        }}
-                      >
+                      <button type="submit">
                         <IoSend className="ButtonMenu" />
                       </button>
                     </div>

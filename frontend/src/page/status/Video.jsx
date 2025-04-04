@@ -1,16 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
+/**
+ * Composant Video - Permet de sélectionner et afficher des vidéos pour les statuts
+ * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
+ * @param {boolean} menuaction - État du menu
+ * @param {boolean} SeeButton - État de visibilité du bouton
+ * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
+ */
+import React, { useState } from "react";
 import "./status.css";
-import Draggable from "react-draggable";
 
 const Video = ({
   setMenuaction,
   menuaction,
   SeeButton,
   setSeeButton,
-  filterPhoto,
+  showVideo,
   setPublication,
-  mobileEmojis,
-  setMobileEmojis,
 }) => {
   // État pour stocker la vidéo sélectionnée
   const [selectedVideo, setSelectedVideo] = useState(null);
@@ -23,102 +27,65 @@ const Video = ({
       const videoUrl = URL.createObjectURL(file);
       setSelectedVideo(videoUrl);
       // Cacher le menu après la sélection
-      //setMenuaction(false);
-      //setSeeButton(false);
+      setMenuaction(false);
+      setSeeButton(false);
     }
   };
+  //voir le bouton publier
   useEffect(() => {
-    if (selectedVideo) {
-      setPublication(true);
-    } else {
-      setPublication(false);
-      setMobileEmojis([]);
+    if (showVideo) {
+      const dimi = showVideo.length;
+      if (dimi > 0) {
+        setPublication(true);
+      } else {
+        setPublication(false);
+      }
     }
   }, [selectedVideo]);
-
-  const refimage = useRef(null);
-  const handlechoicephoto = () => {
-    refimage.current.click();
-  };
-  const containerRef = useRef(null);
-  const moveMobileEmoji = (id, newX, newY) => {
-    setMobileEmojis(
-      mobileEmojis.map((emoji) =>
-        //verification de id de l'emoji
-        emoji.id === id
-          ? //si l'id de l'emoji est égale à l'id de l'emoji déplacé alors on met à jour la position de l'emoji
-            { ...emoji, x: newX, y: newY }
-          : //sinon on retourne l'emoji
-            emoji
-      )
-    );
-  };
-  const deleteMobileEmoji = (id) => {
-    //suppression des emojis
-    setMobileEmojis(mobileEmojis.filter((emoji) => emoji.id !== id));
+  /**
+   * Gère la lecture/pause de la vidéo
+   */
+  const togglePlay = () => {
+    const video = document.getElementById("statusVideo");
+    if (video) {
+      if (isPlaying) {
+        video.pause();
+      } else {
+        video.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
   };
 
   return (
-    <div className="WriteSmsCalles">
+    <div className="WriteSmsCallx">
       {/* Zone d'affichage de la vidéo */}
-      <div className="showScreens" ref={containerRef}>
+      <div className="showScreenx">
         {selectedVideo ? (
-          <video
-            src={selectedVideo}
-            alt="Photo sélectionnée"
-            style={{ filter: filterPhoto }}
-            onError={(e) => {
-              console.error("Erreur de chargement de la vidéo", e);
-              alert("la vidéo n'a pas pu être chargée");
-            }}
-            controls
-            loop
-          />
+          <div className="video-container">
+            <video
+              id="statusVideo"
+              src={selectedVideo}
+              className="showScreenVideo"
+              controls
+              loop
+            />
+            <button onClick={togglePlay} className="playButton">
+              {isPlaying ? "Pause" : "Lecture"}
+            </button>
+          </div>
         ) : (
-          <p>Sélectionner une vidéo...</p>
-        )}
-
-        {mobileEmojis.map((emoji) => (
-          <Draggable
-            key={emoji.id}
-            position={{ x: emoji.x, y: emoji.y }}
-            onStop={(e, data) => moveMobileEmoji(emoji.id, data.x, data.y)}
-            bounds="parent" //limite
+          <p
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+            }}
           >
-            <div
-              style={{
-                position: "absolute",
-                fontSize: "100px",
-                cursor: "move",
-                zIndex: 100,
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                margin: "0px 0px ",
-              }}
-            >
-              <span>{emoji.emoji}</span>
-              <button
-                onClick={() => deleteMobileEmoji(emoji.id)}
-                style={{
-                  cursor: "pointer",
-                  backgroundColor: "red",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: "20px",
-                  height: "20px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "12px",
-                }}
-              >
-                X
-              </button>
-            </div>
-          </Draggable>
-        ))}
+            Sélectionner une vidéo...
+          </p>
+        )}
       </div>
 
       {/* Input pour sélectionner une vidéo */}
@@ -127,19 +94,31 @@ const Video = ({
         accept="video/*"
         onChange={handleVideoSelect}
         style={{ display: "none" }}
-        //id="videoInput"
-        id="photoInput"
-        ref={refimage}
+        id="videoInput"
       />
-      <div className="AddPicturesPhoto" onClick={handlechoicephoto}>
-        <>
-          {!selectedVideo ? (
-            <span>Ajouter une vidéo</span>
-          ) : (
-            <span>Remplacer la vidéo</span>
-          )}
-        </>
+
+      {/* Bouton pour ouvrir le sélecteur de fichiers */}
+      <div className="StartCamera">
+        <button
+          onClick={() => document.getElementById("videoInput").click()}
+          className="ButtonMenu"
+        >
+          Choisir une vidéo
+        </button>
       </div>
+
+      {/* Bouton pour réinitialiser la sélection */}
+      {selectedVideo && (
+        <button
+          onClick={() => {
+            setSelectedVideo(null);
+            setIsPlaying(false);
+          }}
+          className="ButtonMenu"
+        >
+          Changer de vidéo
+        </button>
+      )}
     </div>
   );
 };

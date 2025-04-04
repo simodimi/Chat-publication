@@ -1,65 +1,63 @@
-import React, { useEffect, useRef } from "react";
+/**
+ * Composant Photos - Permet de sélectionner et afficher des photos pour les statuts
+ * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
+ * @param {boolean} menuaction - État du menu
+ * @param {boolean} SeeButton - État de visibilité du bouton
+ * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
+ */
+import React, { useEffect } from "react";
 import "./status.css";
 import { useState } from "react";
-import Draggable from "react-draggable";
 
 const Photos = ({
+  showPhoto,
   filterPhoto,
   setPublication,
-  mobileEmojis,
-  setMobileEmojis,
+  setMenuaction,
+  menuaction,
+  SeeButton,
+  setSeeButton,
 }) => {
   // État pour stocker l'image sélectionnée
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
-    if (selectedImage) {
-      setPublication(true);
-    } else {
-      setPublication(false);
-      setMobileEmojis([]);
+    if (showPhoto) {
+      const dimi = showPhoto.length;
+      if (dimi > 0) {
+        setPublication(true);
+      } else {
+        setPublication(false);
+      }
     }
-  }, [selectedImage]);
+  }, [showPhoto]);
 
+  /**
+   * Gère la sélection d'une image
+   * @param {Event} event - Événement de sélection de fichier
+   */
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedImage(reader.result);
+        // Cacher le menu après la sélection
+        setMenuaction(false);
+        setSeeButton(false);
       };
       reader.readAsDataURL(file);
     }
   };
-  const refimage = useRef(null);
-  const handlechoicephoto = () => {
-    refimage.current.click();
-  };
-  const containerRef = useRef(null);
-  const moveMobileEmoji = (id, newX, newY) => {
-    setMobileEmojis(
-      mobileEmojis.map((emoji) =>
-        //verification de id de l'emoji
-        emoji.id === id
-          ? //si l'id de l'emoji est égale à l'id de l'emoji déplacé alors on met à jour la position de l'emoji
-            { ...emoji, x: newX, y: newY }
-          : //sinon on retourne l'emoji
-            emoji
-      )
-    );
-  };
-  const deleteMobileEmoji = (id) => {
-    //suppression des emojis
-    setMobileEmojis(mobileEmojis.filter((emoji) => emoji.id !== id));
-  };
 
   return (
     <div className="WriteSmsCalles">
-      <div className="showScreens" ref={containerRef}>
+      <div className="showScreens">
         {selectedImage ? (
           <img
             src={selectedImage}
             alt="Photo sélectionnée"
+            className="showScreenImg"
             style={{ filter: filterPhoto }}
             onError={(e) => {
               console.error("Erreur de chargement de la vidéo", e);
@@ -67,50 +65,17 @@ const Photos = ({
             }}
           />
         ) : (
-          <p>Sélectionner une photo...</p>
-        )}
-
-        {mobileEmojis.map((emoji) => (
-          <Draggable
-            key={emoji.id}
-            position={{ x: emoji.x, y: emoji.y }}
-            onStop={(e, data) => moveMobileEmoji(emoji.id, data.x, data.y)}
-            bounds="parent" //limite
+          <p
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+            }}
           >
-            <div
-              style={{
-                position: "absolute",
-                fontSize: "100px",
-                cursor: "move",
-                zIndex: 100,
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                margin: "0px 0px ",
-              }}
-            >
-              <span>{emoji.emoji}</span>
-              <button
-                onClick={() => deleteMobileEmoji(emoji.id)}
-                style={{
-                  cursor: "pointer",
-                  backgroundColor: "red",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "50%",
-                  width: "20px",
-                  height: "20px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "12px",
-                }}
-              >
-                X
-              </button>
-            </div>
-          </Draggable>
-        ))}
+            Sélectionner une photo...
+          </p>
+        )}
       </div>
 
       {/* Input pour sélectionner une image */}
@@ -120,18 +85,24 @@ const Photos = ({
         onChange={handleImageSelect}
         style={{ display: "none" }}
         id="photoInput"
-        ref={refimage}
       />
 
-      <div className="AddPicturesPhoto" onClick={handlechoicephoto}>
-        <>
-          {!selectedImage ? (
-            <span>Ajouter une photo</span>
-          ) : (
-            <span>Remplacer la photo</span>
-          )}
-        </>
+      {/* Bouton pour ouvrir le sélecteur de fichiers */}
+      <div className="StartCamera">
+        <button
+          onClick={() => document.getElementById("photoInput").click()}
+          className="ButtonMenu"
+        >
+          Choisir une photo
+        </button>
       </div>
+
+      {/* Bouton pour réinitialiser la sélection */}
+      {selectedImage && (
+        <button onClick={() => setSelectedImage(null)} className="ButtonMenu">
+          Changer de photo
+        </button>
+      )}
     </div>
   );
 };

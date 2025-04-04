@@ -1,3 +1,11 @@
+/**
+ * Composant FilterImage - Permet d'appliquer des filtres aux images des statuts
+ * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
+ * @param {boolean} menuaction - État du menu
+ * @param {boolean} SeeButton - État de visibilité du bouton
+ * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
+ * @param {Function} setFilter - Fonction pour définir le filtre sélectionné
+ */
 import React from "react";
 import "./status.css";
 import { filtre } from "./test";
@@ -7,8 +15,15 @@ const FilterImage = ({
   menuaction,
   SeeButton,
   setSeeButton,
-  handleFilterSelect,
+  setFilter,
 }) => {
+  const handleFilterSelect = (filterValue) => {
+    setFilter(filterValue);
+    // Cacher le menu après la sélection
+    setMenuaction(false);
+    setSeeButton(false);
+  };
+
   return (
     <div className="ViewOption">
       {/* Grille de filtres */}

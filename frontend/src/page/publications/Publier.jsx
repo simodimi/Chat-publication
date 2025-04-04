@@ -29,7 +29,6 @@ const Publier = ({ onPublish }) => {
     setText("");
     setMedia([]);
     setAudio([]);
-    setEmojis(false);
   };
 
   const handleTextChange = (e) => {
@@ -96,222 +95,167 @@ const Publier = ({ onPublish }) => {
         </span>
       </div>
 
-      <div className="">
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          maxWidth="md"
-          fullWidth
-          PaperProps={{ sx: { maxHeight: "90vh", overflow: "visible" } }}
-        >
-          <div className="" style={{ position: "relative" }}>
-            <DialogTitle>Créer une publication</DialogTitle>
-            <DialogContent>
-              <TextField
-                spellCheck
-                autoFocus
-                margin="dense"
-                label="Que souhaitez-vous partager ?"
-                type="text"
-                multiline
-                fullWidth
-                rows={6}
-                value={text}
-                onChange={handleTextChange}
-                className="CreateGroupeInput"
-                sx={{
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "gainsboro  rgba(102, 145, 211, 0.2)",
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogTitle>Créer une publication</DialogTitle>
+        <DialogContent>
+          <TextField
+            spellCheck
+            autoFocus
+            margin="dense"
+            label="Que souhaitez-vous partager ?"
+            type="text"
+            multiline
+            fullWidth
+            rows={6}
+            value={text}
+            onChange={handleTextChange}
+            className="CreateGroupeInput"
+            sx={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "gainsboro  rgba(102, 145, 211, 0.2)",
 
-                  "& .MuiInputBase-input": { color: "white" },
+              "& .MuiInputBase-input": { color: "white" },
+            }}
+          />
+
+          {media.length > 0 && (
+            <div style={{ marginTop: "16px" }}>
+              <h4>Médias sélectionnés :</h4>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+                  gap: "8px",
+                  marginTop: "8px",
                 }}
-              />
-
-              {media.length > 0 && (
-                <div style={{ marginTop: "16px" }}>
-                  <h4>Médias sélectionnés :</h4>
+              >
+                {media.map((m, index) => (
                   <div
+                    key={index}
                     style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fill, minmax(150px, 1fr))",
-                      gap: "8px",
-                      marginTop: "8px",
+                      position: "relative",
+                      aspectRatio: "1",
+                      borderRadius: "8px",
+                      overflow: "hidden",
                     }}
                   >
-                    {media.map((m, index) => (
-                      <div
-                        key={index}
+                    {m.type === "image" ? (
+                      <img
+                        src={m.url}
+                        alt=""
                         style={{
-                          position: "relative",
-                          aspectRatio: "1",
-                          borderRadius: "8px",
-                          overflow: "hidden",
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
                         }}
-                      >
-                        {m.type === "image" ? (
-                          <img
-                            src={m.url}
-                            alt=""
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                          />
-                        ) : (
-                          <video
-                            src={m.url}
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                            muted
-                          />
-                        )}
-                        <IconButton
-                          onClick={() => removeMedia(index)}
-                          style={{
-                            position: "absolute",
-                            top: "4px",
-                            right: "4px",
-                            backgroundColor: "rgba(0,0,0,0.5)",
-                            color: "white",
-                          }}
-                        >
-                          ×
-                        </IconButton>
-                      </div>
-                    ))}
+                      />
+                    ) : (
+                      <video
+                        src={m.url}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                        muted
+                      />
+                    )}
+                    <IconButton
+                      onClick={() => removeMedia(index)}
+                      style={{
+                        position: "absolute",
+                        top: "4px",
+                        right: "4px",
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        color: "white",
+                      }}
+                    >
+                      ×
+                    </IconButton>
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
+            </div>
+          )}
 
-              {audio.length > 0 && (
-                <div style={{ margin: "16px 20px" }}>
-                  <h4>Fichiers audio sélectionnés :</h4>
-                  <div style={{ marginTop: "8px" }}>
-                    {audio.map((a, index) => (
-                      <div
-                        key={index}
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          gap: "8px",
-                          padding: "8px",
-                          backgroundColor: "#f5f5f5",
-                          borderRadius: "8px",
-                          marginBottom: "8px",
-                          color: "black",
-                          overflowY: "auto",
-                          height: "fit-content",
-                        }}
-                      >
-                        <div
-                          className=""
-                          style={{
-                            display: "flex",
-                            gap: "8px",
-                            alignItems: "center",
-                          }}
-                        >
-                          <FaMusic />
-                          <span>{a.name}</span>
-                        </div>
-                        <div
-                          className=""
-                          style={{ display: "flex", gap: "8px" }}
-                        >
-                          <audio controls src={a.url} style={{ flex: 1 }} />
-                          <IconButton
-                            onClick={() => removeAudio(index)}
-                            sx={{
-                              color: "black!important",
-                            }}
-                          >
-                            X
-                          </IconButton>
-                        </div>
-                      </div>
-                    ))}
+          {audio.length > 0 && (
+            <div style={{ marginTop: "16px" }}>
+              <h4>Fichiers audio sélectionnés :</h4>
+              <div style={{ marginTop: "8px" }}>
+                {audio.map((a, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "8px",
+                      backgroundColor: "#f5f5f5",
+                      borderRadius: "8px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <FaMusic />
+                    <span>{a.name}</span>
+                    <audio controls src={a.url} style={{ flex: 1 }} />
+                    <IconButton
+                      onClick={() => removeAudio(index)}
+                      style={{
+                        backgroundColor: "rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      ×
+                    </IconButton>
                   </div>
-                </div>
-              )}
-            </DialogContent>
-            <DialogActions>
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  marginRight: "auto",
-                  position: "relative",
-                }}
-              >
-                <input
-                  type="file"
-                  accept="image/*,video/*"
-                  multiple
-                  style={{ display: "none" }}
-                  ref={mediaRef}
-                  onChange={handleMediaUpload}
-                />
-                <IconButton onClick={() => mediaRef.current.click()}>
-                  <IoMdPhotos />
-                </IconButton>
-                <input
-                  type="file"
-                  accept="audio/*"
-                  multiple
-                  style={{ display: "none" }}
-                  ref={audioRef}
-                  onChange={handleAudioUpload}
-                />
-                <IconButton onClick={() => audioRef.current.click()}>
-                  <FaMusic />
-                </IconButton>
-                <IconButton onClick={() => setEmojis(!emojis)}>
-                  <MdEmojiEmotions />
-                </IconButton>
-                {/*emojis && (
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "0",
-                  left: "-50px",
-                }}
-              >
+                ))}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <div style={{ display: "flex", gap: "8px", marginRight: "auto" }}>
+            <input
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              style={{ display: "none" }}
+              ref={mediaRef}
+              onChange={handleMediaUpload}
+            />
+            <IconButton onClick={() => mediaRef.current.click()}>
+              <IoMdPhotos />
+            </IconButton>
+            <input
+              type="file"
+              accept="audio/*"
+              multiple
+              style={{ display: "none" }}
+              ref={audioRef}
+              onChange={handleAudioUpload}
+            />
+            <IconButton onClick={() => audioRef.current.click()}>
+              <FaMusic />
+            </IconButton>
+            <IconButton onClick={() => setEmojis(!emojis)}>
+              <MdEmojiEmotions />
+            </IconButton>
+            {emojis && (
+              <div style={{ position: "absolute", bottom: "100%", left: 0 }}>
                 <Emoji handleEmojiClick={handleEmojiClick} />
               </div>
-            )*/}
-              </div>
-              <Button onClick={handleClose}>Annuler</Button>
-              <Button
-                onClick={handlePublish}
-                variant="contained"
-                color="primary"
-                disabled={
-                  !text.trim() && media.length === 0 && audio.length === 0
-                }
-              >
-                Publier
-              </Button>
-            </DialogActions>
-
-            <div
-              className=""
-              style={{ position: "absolute", left: "-40%", top: "0%" }}
-            >
-              {emojis && (
-                <div>
-                  <Emoji handleEmojiClick={handleEmojiClick} />
-                </div>
-              )}
-            </div>
+            )}
           </div>
-        </Dialog>
-      </div>
+          <Button onClick={handleClose}>Annuler</Button>
+          <Button
+            onClick={handlePublish}
+            variant="contained"
+            color="primary"
+            disabled={!text.trim() && media.length === 0 && audio.length === 0}
+          >
+            Publier
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

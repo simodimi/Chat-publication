@@ -18,10 +18,9 @@ import Publier from "./page/publications/Publier";
 import GroupeSelection from "./page/groupe/GroupeSelection";
 import Connexion from "./page/connexion/Connexion";
 import Notification from "./component/notification/Notification";
-import Photos from "./page/status/Photos";
 
 function App() {
-  const user = true;
+  const user = false;
   const [layout, setlayout] = useState({
     left: "20%",
     center: "50%",
@@ -60,7 +59,7 @@ function App() {
                 <Route path="appelusers" element={<Call />} />
                 <Route path="fairepublication" element={<Publier />} />
                 <Route path="groupeSelection" element={<GroupeSelection />} />
-                <Route path="photo" element={<Photos />} />
+
                 <Route path="call" element={<Call />} />
               </Routes>
             </div>
@@ -70,9 +69,9 @@ function App() {
           </BrowserRouter>
         </>
       ) : (
-        <>
+        <BrowserRouter>
           <Connexion />
-        </>
+        </BrowserRouter>
       )}
       <Notification />
     </div>

@@ -100,140 +100,80 @@ const Groupe = () => {
             label="Rechercher un  groupe"
           />
         </Box>
-        <div className="">
-          <div className="NameInfosCall">
-            <div className="NameInfosCallUp">
-              <div className="CallUpLeft">
-                <img src={nomane} alt="" />
-                <div className="">
-                  <p>Groupe alimentaire</p>
-                  <span>histoire de sorcellerie</span>
-                </div>
+        <div className="NameInfosCall">
+          <div className="NameInfosCallUp">
+            <div className="CallUpLeft">
+              <img src={nomane} alt="" />
+              <div className="">
+                <p>Groupe alimentaire</p>
+                <span>histoire de sorcellerie</span>
               </div>
-              <div className="CallUpRight">
-                <div className="ButtonMenu" id="ButtonMenuAddgroup">
-                  <p
-                    style={{
-                      margin: "auto",
-                    }}
-                    onClick={() => handlejoingroup()}
-                  >
-                    rejoindre le groupe
-                  </p>
-                </div>
-                {hiddengroup ? (
-                  <div className="">
-                    {addgroup ? (
-                      <div className="ButtonMenu">
-                        <p
-                          style={{
-                            margin: "auto",
-                          }}
-                        >
-                          quitter le groupe
-                        </p>
-                      </div>
-                    ) : (
+            </div>
+            <div className="CallUpRight">
+              <div className="ButtonMenu" id="ButtonMenuAddgroup">
+                <p
+                  style={{
+                    margin: "auto",
+                  }}
+                  onClick={() => handlejoingroup()}
+                >
+                  rejoindre le groupe
+                </p>
+              </div>
+              {hiddengroup ? (
+                <div className="">
+                  {addgroup ? (
+                    <div className="ButtonMenu">
                       <p
-                        className="ButtonMenu"
                         style={{
                           margin: "auto",
                         }}
-                        onClick={() => handlecancel()}
                       >
-                        annuler la demande
+                        quitter le groupe
                       </p>
-                    )}
-                  </div>
-                ) : (
-                  <p></p>
-                )}
-              </div>
-            </div>
-            <div className="NameInfosCallDown">
-              {joingroup ? (
-                <div className="CallDownLefts">
-                  <div className="CallDownLeftsText">
-                    {waiting ? (
-                      <p>En attente d'acceptation</p>
-                    ) : (
-                      <p
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "5px",
-                        }}
-                      >
-                        Menbre du groupe <FaStar color="yellow" />{" "}
-                      </p>
-                    )}
-                  </div>
-                  <span>
-                    <AiOutlineLoading3Quarters id="loading" />
-                  </span>
+                    </div>
+                  ) : (
+                    <p
+                      className="ButtonMenu"
+                      style={{
+                        margin: "auto",
+                      }}
+                      onClick={() => handlecancel()}
+                    >
+                      annuler la demande
+                    </p>
+                  )}
                 </div>
               ) : (
                 <p></p>
               )}
             </div>
           </div>
-          <div className="Owngroup">
-            <span style={{ marginLeft: "5%", fontWeight: "bold" }}>
-              Mes groupes
-            </span>
-            <div className="NameInfosCall">
-              <div className="NameInfosCallUp">
-                <div className="CallUpLeft">
-                  <img src={nomane} alt="" />
-                  <div className="">
-                    <p>Groupe alimentaire</p>
-                    <span>histoire de sorcellerie</span>
-                  </div>
-                </div>
-                <div className="CallUpRight">
-                  <div className="ButtonMenu" id="ButtonMenuAddgroup">
+          <div className="NameInfosCallDown">
+            {joingroup ? (
+              <div className="CallDownLefts">
+                <div className="CallDownLeftsText">
+                  {waiting ? (
+                    <p>En attente d'acceptation</p>
+                  ) : (
                     <p
                       style={{
-                        margin: "auto",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "5px",
                       }}
-                      onClick={() => handlejoingroup()}
                     >
-                      supprimer votre groupe
+                      Menbre du groupe <FaStar color="yellow" />{" "}
                     </p>
-                  </div>
+                  )}
                 </div>
+                <span>
+                  <AiOutlineLoading3Quarters id="loading" />
+                </span>
               </div>
-              <div className="NameInfosCallDown"></div>
-            </div>
-          </div>
-          <div className="Owngroup">
-            <span style={{ marginLeft: "5%", fontWeight: "bold" }}>
-              Mes abonnements
-            </span>
-            <div className="NameInfosCall">
-              <div className="NameInfosCallUp">
-                <div className="CallUpLeft">
-                  <img src={nomane} alt="" />
-                  <div className="">
-                    <p>Groupe alimentaire</p>
-                    <span>histoire de sorcellerie</span>
-                  </div>
-                </div>
-                <div className="CallUpRight">
-                  <div className="ButtonMenu" id="ButtonMenuAddgroup">
-                    <p
-                      style={{
-                        margin: "auto",
-                      }}
-                      onClick={() => handlejoingroup()}
-                    >
-                      quitter le groupe
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="NameInfosCallDown"></div>
-            </div>
+            ) : (
+              <p></p>
+            )}
           </div>
         </div>
       </div>

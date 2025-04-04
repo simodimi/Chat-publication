@@ -1,11 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import Draggable from "react-draggable"; //deplacement des composants
 import "./status.css";
 import nomane from "../../assets/icone/personne.jpeg";
 import { GiCrossMark } from "react-icons/gi";
 import { MdAddAPhoto, MdSms, MdOutlineFormatSize } from "react-icons/md";
-import { IoColorPalette, IoVideocam } from "react-icons/io5";
-import { FaFileVideo, FaFilter, FaMicrophone } from "react-icons/fa";
+import { IoColorPalette, IoVideocam, IoClose } from "react-icons/io5";
+import {
+  FaFileVideo,
+  FaFilter,
+  FaMicrophone,
+  FaPlay,
+  FaPause,
+} from "react-icons/fa";
 import { PiSelectionBackground } from "react-icons/pi";
 import { FaImage } from "react-icons/fa6";
 import { BsEmojiLaughingFill, BsEmojiWinkFill } from "react-icons/bs";
@@ -69,7 +75,6 @@ const Status = () => {
   const [emojiButton, setEmojiButton] = useState(true);
   const [styleButton, setStyleButton] = useState(true);
   const [filtreButton, setFiltreButton] = useState(true);
-  const navigate = useNavigate();
   const handleChoice = () => {
     setButtonClick(!ButtonClick);
     setSelectionButton(!SelectionButton);
@@ -99,7 +104,7 @@ const Status = () => {
   const textview = () => {
     setSelfieButton(false);
     setVideoButton(false);
-    setFiltreButton(false); //false
+    setFiltreButton(false);
     setVisualisationTexte(true);
     setVisualisationAudio(false);
     setVisualisationEmoji(false);
@@ -112,9 +117,8 @@ const Status = () => {
     setVisualisationColorText(false);
     setVisualisationFont(false);
     setVisualisationSelfieVideo(false);
-    setVisualisationEmojiMobile(false); //false
-    setEmojiButton(false);
-    //setMenuaction(true);
+    setVisualisationEmojiMobile(false);
+    setMenuaction(true);
   };
   //visualisation emoji
   const [visualisationEmoji, setVisualisationEmoji] = useState(false);
@@ -125,7 +129,7 @@ const Status = () => {
     setVisualisationEmoji(!visualisationEmoji);
     setIsMobileEmojiMode(false);
     setVisualisationAudio(false);
-    setVisualisationTexte(true); //true 126
+    setVisualisationTexte(true);
     setVisualisationPhoto(false);
     setVisualisationVideo(false);
     setVisualisationSelfie(false);
@@ -216,7 +220,7 @@ const Status = () => {
     setVisualisationAudio(false);
     setVisualisationTexte(false);
     setVisualisationEmoji(false);
-    setVisualisationPhoto(true); //true
+    setVisualisationPhoto(true);
     setVisualisationVideo(false);
     setVisualisationSelfie(false);
     setVisualisationColorText(false);
@@ -271,12 +275,12 @@ const Status = () => {
     useState(false);
   const emojimobileview = () => {
     setVisualisationEmojiMobile((prev) => !prev);
-    setIsMobileEmojiMode(false);
+    setIsMobileEmojiMode(true);
     setVisualisationAudio(false);
-    setVisualisationTexte(false);
+    setVisualisationTexte(true);
     setVisualisationEmoji(false);
-    setVisualisationPhoto(true);
-    setVisualisationVideo(true); //false
+    setVisualisationPhoto(false);
+    setVisualisationVideo(false);
     setVisualisationSelfie(false);
     setVisualisationSelfieVideo(false);
     setVisualisationColorText(false);
@@ -289,14 +293,30 @@ const Status = () => {
     setMobileEmojis([
       ...mobileEmojis,
       // Un ID généré à partir de la date actuelle (Date.now())
-      { id: Date.now(), emoji, x: 300, y: -200 },
+      { id: Date.now(), emoji, x: 0, y: 0 },
     ]);
+  };
+  const moveMobileEmoji = (id, newX, newY) => {
+    //deplacement des emojis
+    setMobileEmojis(
+      mobileEmojis.map((emoji) =>
+        //verification de id de l'emoji
+        emoji.id === id
+          ? //si l'id de l'emoji est égale à l'id de l'emoji déplacé alors on met à jour la position de l'emoji
+            { ...emoji, x: newX, y: newY }
+          : //sinon on retourne l'emoji
+            emoji
+      )
+    );
+  };
+  const deleteMobileEmoji = (id) => {
+    //suppression des emojis
+    setMobileEmojis(mobileEmojis.filter((emoji) => emoji.id !== id));
   };
   const handleMobileEmojiClick = (emoji) => {
     setVisualisationEmojiMobile(true);
     addMobileEmoji(emoji);
   };
-
   //visualisation selfie video
   const [visualisationSelfieVideo, setVisualisationSelfieVideo] =
     useState(false);
@@ -330,22 +350,27 @@ const Status = () => {
     setVisualisationColorText(false);
     setVisualisationBgText(false);
     setVisualisationTailleText(false);
-    setVisualisationFiltre(false); //false
+    setVisualisationFiltre(false);
     setVisualisationFont(false);
     setVisualisationSelfieVideo(false);
-    setBgButton(false);
-    setFont(false);
-    setSizeButton(false);
-    setSelfieButton(false);
-    setVideoButton(false);
-    setStyleButton(false);
-    setColorButton(false);
-    setEmojiButton(true);
-    setFiltreButton(true);
-    setSelfieButton(false);
-    setVideoButton(false);
   };
-
+  const SelectPhoto = () => {
+    refphotos.current.click();
+  };
+  const ChangePicture = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size <= 8 * 1024 * 1024) {
+        const read = new FileReader();
+        read.onloadend = () => {
+          setShowPhoto(read.result);
+        };
+        read.readAsDataURL(file);
+      } else {
+        alert("la taille de l'image est trop grande");
+      }
+    }
+  };
   //visualisation video
   const refvideo = useRef(null);
   const [showVideo, setShowVideo] = useState(null);
@@ -364,17 +389,6 @@ const Status = () => {
     setVisualisationFiltre(false);
     setVisualisationFont(false);
     setVisualisationSelfieVideo(false);
-    setBgButton(false);
-    setFont(false);
-    setSizeButton(false);
-    setSelfieButton(false);
-    setVideoButton(false);
-    setStyleButton(false);
-    setColorButton(false);
-    setEmojiButton(true);
-    setFiltreButton(false);
-    setSelfieButton(false);
-    setVideoButton(false);
   };
 
   const SelectVideo = () => {
@@ -754,21 +768,20 @@ const Status = () => {
                       )}
                     </div>
                   </div>
-                  {visualisationAudio && (
-                    <Audio
-                      onSave={handleAudioSave}
-                      setPublication={setPublication}
-                    />
-                  )}
+                  {visualisationAudio && <Audio onSave={handleAudioSave} />}
                   {visualisationTexte && (
                     <div className="">
                       <Sms
                         selectedEmoji={selectedEmoji}
                         colorText={colorText}
                         bgtext={bgtext}
-                        taille={taille}
+                        taille={taille} //premier props et deuxieme usestate
                         font={font}
+                        mobileEmojis={mobileEmojis} // Passez les emojis mobiles au composant Sms
+                        onMoveEmoji={moveMobileEmoji} // Passez la fonction de déplacement
+                        onDeleteEmoji={deleteMobileEmoji} // Passez la fonction de suppression
                         publication={publication}
+                        isMobileEmojiMode={isMobileEmojiMode}
                         setPublication={setPublication}
                       />
                     </div>
@@ -777,30 +790,55 @@ const Status = () => {
                     <Emoji onEmojiSelect={handleEmojiSelect} />
                   )}
                   {visualisationPhoto && (
-                    <div
-                      style={{
-                        position: "relative",
-                      }}
-                    >
+                    <div>
                       <Photos
                         showPhoto={showPhoto}
                         filterPhoto={filterPhoto}
-                        publication={publication}
                         setPublication={setPublication}
-                        mobileEmojis={mobileEmojis}
-                        setMobileEmojis={setMobileEmojis}
-                        addMobileEmoji={addMobileEmoji}
                       />
+                      {mobileEmojis.map((emoji) => (
+                        <div
+                          key={emoji.id}
+                          style={{
+                            position: "absolute",
+                            left: emoji.x, //position de l'emoji horizontale
+                            top: emoji.y, //position de l'emoji verticale
+                            fontSize: "24px", //taille de l'emoji
+                            cursor: "move", //curseur indiquant que l'emoji est déplaçable
+                          }}
+                          draggable //rendre l'emoji déplaçable
+                          onDragEnd={(e) => {
+                            // fonction de déplacement de l'emoji
+                            //calcul de la nouvelle position de l'emoji
+                            const newX = e.clientX - e.target.offsetWidth / 2;
+                            const newY = e.clientY - e.target.offsetHeight / 2;
+                            moveMobileEmoji(emoji.id, newX, newY); //fonction de mise à jour de la position de l'emoji
+                          }}
+                        >
+                          {emoji.emoji}
+                          <button
+                            onClick={() => deleteMobileEmoji(emoji.id)}
+                            style={{
+                              marginLeft: "5px",
+                              cursor: "pointer",
+                              backgroundColor: "red",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "50%",
+                              width: "20px",
+                              height: "20px",
+                            }}
+                          >
+                            X
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   )}
                   {visualisationVideo && (
                     <Video
                       showVideo={showVideo}
                       setPublication={setPublication}
-                      publication={publication}
-                      mobileEmojis={mobileEmojis}
-                      setMobileEmojis={setMobileEmojis}
-                      addMobileEmoji={addMobileEmoji}
                     />
                   )}
                   {visualisationSelfie && (
@@ -809,18 +847,9 @@ const Status = () => {
                       menuaction={menuaction}
                       setSeeButton={setSeeButton}
                       SeeButton={SeeButton}
-                      setPublication={setPublication}
                     />
                   )}
-                  {visualisationSelfieVideo && (
-                    <SelfieViedo
-                      setMenuaction={setMenuaction}
-                      menuaction={menuaction}
-                      setSeeButton={setSeeButton}
-                      SeeButton={SeeButton}
-                      setPublication={setPublication}
-                    />
-                  )}
+                  {visualisationSelfieVideo && <SelfieViedo />}
                   {visualisationColorText && (
                     <StyleBackground ChangeColorText={ChangeColorText} />
                   )}
@@ -832,7 +861,7 @@ const Status = () => {
                     <FontStyle ChangeFontText={ChangeFontText} />
                   )}
                   {visualisationFiltre && (
-                    <FilterImage handleFilterSelect={ChangeFilter} />
+                    <FilterImage ChangeFilter={ChangeFilter} />
                   )}
                   {visualisationEmojiMobile && (
                     <EmojiMobile onEmojSelect={handleMobileEmojiClick} />
@@ -861,10 +890,10 @@ const Status = () => {
                           style={{ color: "blue" }}
                           onClick={() => {
                             videoview();
-                            // SelectVideo();
+                            SelectVideo();
                           }}
                         />
-                        {/*  <input
+                        <input
                           type="file"
                           name=""
                           id=""
@@ -872,7 +901,7 @@ const Status = () => {
                           style={{ display: "none" }}
                           onChange={ChangeVideo}
                           ref={refvideo}
-                        />*/}
+                        />
                       </span>
 
                       <label>selectionner une vidéo</label>
@@ -883,11 +912,11 @@ const Status = () => {
                           style={{ color: "red" }}
                           onClick={() => {
                             photoview();
-                            //SelectPhoto();
+                            SelectPhoto();
                           }}
                         />
 
-                        {/*   <input
+                        <input
                           type="file"
                           name=""
                           id=""
@@ -895,7 +924,7 @@ const Status = () => {
                           style={{ display: "none" }}
                           onChange={ChangePicture}
                           ref={refphotos}
-                        />*/}
+                        />
                       </span>
                       <label>selectionner une image</label>
                     </p>

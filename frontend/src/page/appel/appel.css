@@ -20,9 +20,6 @@
 .AppelHomeRight {
   width: 70%;
   height: 100vh;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: gainsboro white;
 }
 #Appel {
   font-weight: bold;
@@ -86,7 +83,7 @@
 }
 .NameInfosCall {
   width: 80%;
-  margin: 20px auto;
+  margin: 80px auto;
   border: 1px solid white;
   box-shadow: 1px 1px 5px 0px cyan;
   border-radius: 10px;
