@@ -2,16 +2,17 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-// Créer le dossier s'il n'existe pas
-const uploadDir = path.join(__dirname, "../public/uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Créer le dossier uploads s'il n'existe pas
+const uploadsDir = path.join(__dirname, "..", "public", "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
   console.log("📁 Dossier uploads créé avec succès");
 }
 
+// Configuration du stockage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, uploadDir);
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -22,8 +23,8 @@ const storage = multer.diskStorage({
   },
 });
 
+// Filtre pour n'accepter que les images
 const fileFilter = (req, file, cb) => {
-  // Accepter uniquement les images
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
@@ -31,6 +32,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+// Configuration de multer
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,

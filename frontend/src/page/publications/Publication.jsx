@@ -91,22 +91,48 @@ const Publication = () => {
     ref.current.click();
   };
 
-  const HandleProfile = (e) => {
+  const HandleProfile = async (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size <= 5 * 1024 * 1024) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setProfilePicture(reader.result);
+        // Limite de 5MB
+        const formData = new FormData();
+        formData.append("photo_profil", file);
+
+        try {
+          const response = await fetch(
+            `http://localhost:5000/users/${userData.id_utilisateur}/photo`,
+            {
+              method: "PUT",
+              body: formData,
+            }
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            console.error("Erreur du serveur:", data);
+            toast.error(
+              data.message || "Erreur lors de la mise à jour de la photo"
+            );
+            return;
+          }
+
           // Mise à jour du localStorage avec la nouvelle photo
           const updatedUser = {
             ...userData,
-            photo_profil: reader.result,
+            photo_profil: data.photo_profil,
           };
           localStorage.setItem("user", JSON.stringify(updatedUser));
           setUserData(updatedUser);
-        };
-        reader.readAsDataURL(file);
+          setProfilePicture(data.photo_profil);
+          toast.success("Photo de profil mise à jour avec succès");
+        } catch (error) {
+          console.error("Erreur lors de la mise à jour de la photo:", error);
+          toast.error(
+            "Erreur lors de la mise à jour de la photo. Veuillez réessayer."
+          );
+        }
       } else {
         toast.error("Veuillez choisir un fichier de moins de 5MB");
       }
@@ -294,7 +320,7 @@ const Publication = () => {
       <div className="PublicationTitle">
         <div className="PublicationTitle-Img">
           <img
-            src={userData?.photo_profil || ProfilePicture || noname}
+            src={userData?.photo_profil || noname}
             alt="Photo de profil"
             onClick={() => ChangeProfile()}
           />

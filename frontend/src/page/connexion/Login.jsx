@@ -114,15 +114,14 @@ const Login = ({ setUser }) => {
         ? `http://localhost:5000${data.photo_profil}`
         : null;
 
-      // Stockage des données utilisateur dans le localStorage
+      console.log("Photo de profil reçue:", photo_profil);
       localStorage.setItem(
-        "user",
-        JSON.stringify({
-          id_utilisateur: data.id_utilisateur,
-          name_utilisateur: data.name_utilisateur,
-          email_utilisateur: data.email_utilisateur,
-          photo_profil: photo_profil,
-        })
+        "userData",
+        JSON.stringify({ ...data, photo_profil })
+      );
+      console.log(
+        "Données stockées dans localStorage:",
+        JSON.parse(localStorage.getItem("userData"))
       );
 
       toast.success(`Bienvenue ${data.name_utilisateur}`);

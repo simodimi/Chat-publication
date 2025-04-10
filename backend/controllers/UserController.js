@@ -30,12 +30,17 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ message: "Mot de passe incorrect" });
     }
 
+    // Construction de l'URL complète de la photo de profil
+    const photo_profil = user.photo_profil
+      ? `http://localhost:5000${user.photo_profil}`
+      : null;
+
     // Retourner les données de l'utilisateur sans le mot de passe
     return res.status(200).json({
       id_utilisateur: user.id_utilisateur,
       name_utilisateur: user.name_utilisateur,
       email_utilisateur: user.email_utilisateur,
-      photo_profil: user.photo_profil,
+      photo_profil: photo_profil,
     });
   } catch (error) {
     console.error("Erreur de connexion:", error);
@@ -195,6 +200,56 @@ const updateuser = async (req, res) => {
     res.status(500).json({ message: "erreur serveur" });
   }
 };
+
+const updatePhotoProfil = async (req, res) => {
+  try {
+    const { id_utilisateur } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Aucune photo n'a été envoyée" });
+    }
+
+    // Vérification de l'existence de l'utilisateur
+    const user = await User.findByPk(id_utilisateur);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur introuvable" });
+    }
+
+    // Suppression de l'ancienne photo si elle existe
+    if (user.photo_profil) {
+      const oldPhotoPath = path.join(
+        __dirname,
+        "..",
+        "public",
+        user.photo_profil
+      );
+      if (fs.existsSync(oldPhotoPath)) {
+        fs.unlinkSync(oldPhotoPath);
+      }
+    }
+
+    // Construction du chemin de la nouvelle photo
+    const photoPath = `/uploads/${req.file.filename}`;
+
+    // Mise à jour de la photo de profil dans la base de données
+    await user.update({ photo_profil: photoPath });
+
+    // Construction de l'URL complète de la nouvelle photo
+    const photoUrl = `http://localhost:5000${photoPath}`;
+
+    return res.status(200).json({
+      message: "Photo de profil mise à jour avec succès",
+      photo_profil: photoUrl,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de la photo:", error);
+    return res.status(500).json({
+      message: "Erreur serveur",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createUser,
   deleteUser,
@@ -202,4 +257,5 @@ module.exports = {
   getuserbyid,
   updateuser,
   loginUser,
+  updatePhotoProfil,
 };
