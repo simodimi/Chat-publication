@@ -50,6 +50,10 @@
   padding: 20px 50px;
   background-color: blue;
 }
+.button button:hover {
+  background-color: green;
+  cursor: pointer;
+}
 .verification {
   display: flex;
   flex-direction: column;
@@ -69,4 +73,28 @@
   font-size: 24px;
   margin: 0;
   text-align: center;
+}
+.other p {
+  display: flex;
+  gap: 10px;
+}
+.other p span a {
+  color: green;
+  font-weight: bolder;
+}
+.other p span a:hover {
+  cursor: pointer;
+  text-decoration: underline;
+  animation: color 0.5s linear infinite;
+}
+@keyframes color {
+  0% {
+    color: green;
+  }
+  50% {
+    color: blue;
+  }
+  100% {
+    color: green;
+  }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import image from "../../assets/social.png";
 import Box from "@mui/material/Box";
@@ -49,7 +49,7 @@ const CustomTextField = (props) => {
   );
 };
 
-const Connexion = () => {
+const Connexion = ({ setUser }) => {
   const [showPassword, setShowPassword] = React.useState(false);
   const [showPassword1, setShowPassword1] = React.useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -154,6 +154,7 @@ const Connexion = () => {
     }
   };
   const handlelogin = async (e) => {
+    e.preventDefault();
     seterrorMessage("");
     seterror(false);
 
@@ -180,7 +181,10 @@ const Connexion = () => {
 
     try {
       const formDataToSend = new FormData();
+      console.log("Données du formulaire:", formData);
+      console.log("Photo de profil:", avatar.file);
 
+      // Ajout des champs texte
       formDataToSend.append("name_utilisateur", formData.name_utilisateur);
       formDataToSend.append("email_utilisateur", formData.email_utilisateur);
       formDataToSend.append(
@@ -188,26 +192,51 @@ const Connexion = () => {
         formData.password_utilisateur
       );
       formDataToSend.append("password_confirm", formData.password_confirm);
+
+      // Ajout de la photo si elle existe
       if (avatar.file) {
-        formDataToSend.append("photo_profil", avatar.file);
+        console.log("Ajout de la photo au FormData:", avatar.file.name);
+        formDataToSend.append("photo_profil", avatar.file, avatar.file.name);
       }
-      const response = await fetch("http://localhost:3000/users", {
+
+      const response = await fetch("http://localhost:5000/users/register", {
         method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
         body: formDataToSend,
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        seterrorMessage(errorData.message || "Erreur lors de l'inscription.");
+        console.error("Erreur du serveur:", data);
+        seterrorMessage(data.message || "Erreur lors de l'inscription");
         seterror(true);
         return;
       }
 
-      const userData = await response.json();
-      toast.success("Inscription réussie !");
-      // window.location.href = `/profile/${userData.id_utilisateur}`;
+      // Stockage des données utilisateur dans le localStorage
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          name_utilisateur: formData.name_utilisateur,
+          email_utilisateur: formData.email_utilisateur,
+          photo_profil: data.user.photo_profil || null,
+        })
+      );
+
+      toast.success(data.message || "Inscription réussie !", {
+        autoClose: 2000,
+      });
+
+      // Redirection après inscription réussie
+      setUser(true);
+      navigate("/publication");
     } catch (error) {
-      seterrorMessage("Une erreur s'est produite lors de l'inscription.");
+      console.error("Erreur lors de l'inscription:", error);
+      seterrorMessage("Une erreur s'est produite lors de l'inscription");
+      seterror(true);
       toast.error("Erreur lors de l'inscription");
     }
   };
@@ -276,7 +305,10 @@ const Connexion = () => {
             <div className="subform">
               <label htmlFor="">Mot de passe</label>
               <FormControl variant="outlined" fullWidth {...textFieldStyles}>
-                <InputLabel htmlFor={`password-${passwordId}`}>
+                <InputLabel
+                  htmlFor={`password-${passwordId}`}
+                  sx={{ color: "white", "&.Mui-focused": { color: "white" } }}
+                >
                   Password
                 </InputLabel>
                 <OutlinedInput
@@ -306,7 +338,10 @@ const Connexion = () => {
             <div className="subform">
               <label htmlFor="">Confirmer mot de passe</label>
               <FormControl variant="outlined" fullWidth {...textFieldStyles}>
-                <InputLabel htmlFor={`confirm-password-${confirmPasswordId}`}>
+                <InputLabel
+                  htmlFor={`confirm-password-${confirmPasswordId}`}
+                  sx={{ color: "white", "&.Mui-focused": { color: "white" } }}
+                >
                   Confirm Password
                 </InputLabel>
                 <OutlinedInput
@@ -338,7 +373,13 @@ const Connexion = () => {
             <button type="submit">Créer un compte</button>
           </div>
           <div className="other">
-            <p>vous avez un compte?connectez-vous</p>
+            <p>
+              vous avez un compte?{" "}
+              <span>
+                {" "}
+                <Link to={"/login"}>connectez-vous</Link>{" "}
+              </span>
+            </p>
           </div>
           <div className="verification">
             {contraint && (

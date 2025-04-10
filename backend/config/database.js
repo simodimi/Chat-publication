@@ -5,16 +5,16 @@ require("dotenv").config();
 const DB_HOST = process.env.HOST;
 const DB_USER = process.env.USER;
 const DB_PASSWORD = process.env.PASSWORD;
-const DB_PORT = parseInt(process.env.PORT, 10); //convertir en nombre
+const DB_PORT = process.env.DB_PORT; //convertir en nombre
 const DB_NAME = process.env.NAME;
-const DB_DIALECT = process.env.DIALECT;
+//const DB_DIALECT = process.env.DIALECT;
 
 //creer une nouvelle instance de sequelize
 const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASSWORD, {
   host: DB_HOST,
   port: DB_PORT,
-  dialect: DB_DIALECT,
-  logging: false, //n'affiche pas les requetes sql dans la console
+  dialect: "mysql",
+  logging: console.log, //afficher les requetes sql dans la console
 });
 //connexion à la bdd
 async function testconnection() {

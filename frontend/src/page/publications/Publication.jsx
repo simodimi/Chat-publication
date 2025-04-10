@@ -19,6 +19,7 @@ import { Dialog, DialogContent, IconButton } from "@mui/material";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FaMusic } from "react-icons/fa";
 import { use } from "react";
+import { toast } from "react-toastify";
 
 const Publication = () => {
   // États pour les publications
@@ -33,13 +34,27 @@ const Publication = () => {
   const [likes, setLikes] = useState({});
   const [menuStates, setMenuStates] = useState({});
   const [writeStates, setWriteStates] = useState({});
-  const [writeAreas, setWriteAreas] = useState({}); // État pour le texte de chaque publication
+  const [writeAreas, setWriteAreas] = useState({});
   const [photoComment, setphotoComment] = useState(null);
   const [emojis, setEmoji] = useState({});
 
   const ref = useRef(null);
   const refcomment = useRef(null);
   const [ProfilePicture, setProfilePicture] = useState(noname);
+
+  // Récupération des données utilisateur depuis le localStorage
+  const [userData, setUserData] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  // Mise à jour de l'état quand les données utilisateur changent
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUserData(JSON.parse(savedUser));
+    }
+  }, []);
 
   // Gestion de la publication
   const handlePublish = (publication) => {
@@ -79,14 +94,21 @@ const Publication = () => {
   const HandleProfile = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size <= 1 * 1024 * 1024) {
-        const dimi = new FileReader();
-        dimi.onloadend = () => {
-          setProfilePicture(dimi.result);
+      if (file.size <= 5 * 1024 * 1024) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setProfilePicture(reader.result);
+          // Mise à jour du localStorage avec la nouvelle photo
+          const updatedUser = {
+            ...userData,
+            photo_profil: reader.result,
+          };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          setUserData(updatedUser);
         };
-        dimi.readAsDataURL(file);
+        reader.readAsDataURL(file);
       } else {
-        alert("veillez choissir un fichier de moins de 5mo");
+        toast.error("Veuillez choisir un fichier de moins de 5MB");
       }
     }
   };
@@ -271,17 +293,20 @@ const Publication = () => {
     <div className="PublicationHome">
       <div className="PublicationTitle">
         <div className="PublicationTitle-Img">
-          <img src={ProfilePicture} alt="" onClick={() => ChangeProfile()} />
+          <img
+            src={userData?.photo_profil || ProfilePicture || noname}
+            alt="Photo de profil"
+            onClick={() => ChangeProfile()}
+          />
           <input
             type="file"
-            name=""
-            id=""
+            name="photo_profil"
             accept="image/*"
             ref={ref}
             onChange={HandleProfile}
             style={{ display: "none" }}
           />
-          <p>Dimitri</p>
+          <p>{userData?.name_utilisateur || "Utilisateur"}</p>
         </div>
         <div className="PublicationTitle-Selection">
           <Publier onPublish={handlePublish} />

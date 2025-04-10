@@ -107,7 +107,7 @@ const Index = ({ UpdateWidth, UpdateWidths }) => {
               onClick={() => setChoix("publication")}
               className={Choix === "publication" ? "active" : ""}
             >
-              <Link to="/">
+              <Link to="/publication">
                 <div className="iconeDescription">
                   <img src={tof6} alt="logo" />
                   {showtext && <p className="ShowDescription">publications</p>}

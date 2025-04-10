@@ -16,7 +16,7 @@ import io from "socket.io-client";
 import "./call.css";
 import { CiSquarePlus } from "react-icons/ci";
 //url du serveur
-const socket = io("http://localhost:3001");
+const socket = io("http://localhost:3000");
 
 const Call = () => {
   const navigate = useNavigate();

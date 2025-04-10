@@ -18,9 +18,10 @@ import Publier from "./page/publications/Publier";
 import GroupeSelection from "./page/groupe/GroupeSelection";
 import Connexion from "./page/connexion/Connexion";
 import Notification from "./component/notification/Notification";
+import Login from "./page/connexion/Login";
 
 function App() {
-  const user = false;
+  const [User, setUser] = useState(false);
   const [layout, setlayout] = useState({
     left: "20%",
     center: "50%",
@@ -34,7 +35,7 @@ function App() {
   };
   return (
     <div className="App">
-      {user ? (
+      {User ? (
         <>
           <BrowserRouter>
             <div className="IndexLeft" style={{ width: layout.left }}>
@@ -42,7 +43,7 @@ function App() {
             </div>
             <div className="IndexCenter" style={{ width: layout.center }}>
               <Routes>
-                <Route path="/" element={<Publication />} />
+                <Route path="publication" element={<Publication />} />
                 <Route path="appel" element={<Appel />} />
                 <Route path="message" element={<Message />} />
                 <Route path="status" element={<Status />} />
@@ -69,9 +70,17 @@ function App() {
           </BrowserRouter>
         </>
       ) : (
-        <BrowserRouter>
-          <Connexion />
-        </BrowserRouter>
+        <>
+          <BrowserRouter>
+            <Routes>
+              <Route
+                path="inscription"
+                element={<Connexion setUser={setUser} />}
+              />
+              <Route path="login" element={<Login setUser={setUser} />} />
+            </Routes>
+          </BrowserRouter>
+        </>
       )}
       <Notification />
     </div>
