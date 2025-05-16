@@ -1,12 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  IoCall,
   IoVideocam,
   IoMic,
   IoMicOff,
   IoVideocamOff,
-  IoVideocamOutline,
   IoCallOutline,
   IoShareSocial,
   IoPeople,

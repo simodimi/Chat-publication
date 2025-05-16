@@ -1,7 +1,3 @@
-/**
- * Composant ChangeBg - Permet de changer le fond d'arrière-plan des statuts
- * @param {Function} Changebg - Fonction pour changer le fond d'arrière-plan
- */
 import React from "react";
 import { background } from "./test";
 

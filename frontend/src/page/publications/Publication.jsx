@@ -3,7 +3,6 @@ import "./publication.css";
 import { IoSend } from "react-icons/io5";
 import noname from "../../assets/icone/personne.jpeg";
 import { FaCirclePlus } from "react-icons/fa6";
-import { FaPenAlt } from "react-icons/fa";
 import { MdMenu } from "react-icons/md";
 import { CiSaveDown2 } from "react-icons/ci";
 import { MdAppBlocking } from "react-icons/md";
@@ -18,8 +17,8 @@ import Publier from "./Publier";
 import { Dialog, DialogContent, IconButton } from "@mui/material";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { FaMusic } from "react-icons/fa";
-import { use } from "react";
 import { toast } from "react-toastify";
+import CreateGroupModal from "../../component/CreateGroupModal";
 
 const Publication = () => {
   // États pour les publications
@@ -315,6 +314,8 @@ const Publication = () => {
   const maxlength = 600;
   const [isexpand, setisexpand] = useState({});
 
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+
   return (
     <div className="PublicationHome">
       <div className="PublicationTitle">
@@ -336,7 +337,10 @@ const Publication = () => {
         </div>
         <div className="PublicationTitle-Selection">
           <Publier onPublish={handlePublish} />
-          <div className="CreateGroupe">
+          <div
+            className="CreateGroupe"
+            onClick={() => setShowCreateGroup(true)}
+          >
             <p>Créer un groupe</p>
             <span>
               <FaCirclePlus />
@@ -687,6 +691,15 @@ const Publication = () => {
           </IconButton>
         </DialogContent>
       </Dialog>
+
+      <CreateGroupModal
+        open={showCreateGroup}
+        onClose={() => setShowCreateGroup(false)}
+        onGroupCreated={(group) => {
+          // Redirection vers la page des groupes après création
+          window.location.href = "/groupe";
+        }}
+      />
     </div>
   );
 };

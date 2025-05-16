@@ -5,6 +5,8 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const db = require("./config/database"); // Sequelize instance
 const userRoutes = require("./routes/UserRoute"); // Tes routes utilisateurs
+const messageRoutes = require("./routes/messageRoutes"); // Ajout des routes de messages
+const groupRoutes = require("./routes/groupRoutes"); // Ajout des routes de groupes
 const path = require("path");
 const fs = require("fs");
 
@@ -43,11 +45,19 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Middleware de débogage
+app.use((req, res, next) => {
+  console.log(`📨 Requête reçue: ${req.method} ${req.url}`);
+  next();
+});
+
 // Servir les fichiers statiques
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
-// Routes API (ex: http://localhost:5173/users)
-app.use("/users", userRoutes);
+// Routes API (ex: http://localhost:5000/api/users)
+app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes); // Ajout des routes de messages
+app.use("/api/groups", groupRoutes); // Ajout des routes de groupes
 
 // Middleware pour gérer les erreurs
 app.use((err, req, res, next) => {
@@ -57,7 +67,8 @@ app.use((err, req, res, next) => {
     error: err.message,
   });
 });
-
+//photo dans l'email
+app.use("/public", express.static(path.join(__dirname, "public")));
 // Création du serveur HTTP
 const server = http.createServer(app);
 
@@ -69,104 +80,21 @@ const io = new Server(server, {
   },
 });
 
-// ---------------- WebSocket Logic ----------------
-const rooms = new Map();
+// Stocker l'instance io dans l'application
+app.set("io", io);
 
+// Gestion des connexions Socket.IO
 io.on("connection", (socket) => {
   console.log("Un utilisateur s'est connecté:", socket.id);
 
-  socket.on("create-room", ({ type, userId }) => {
-    const roomId = Math.random().toString(36).substring(7);
-    rooms.set(roomId, {
-      type,
-      participants: [
-        {
-          id: userId,
-          socketId: socket.id,
-        },
-      ],
-    });
-    socket.join(roomId);
-    socket.emit("room-created", { roomId });
-  });
-
-  socket.on("join-room", ({ roomId, userId }) => {
-    const room = rooms.get(roomId);
-    if (room) {
-      socket.join(roomId);
-      room.participants.push({
-        id: userId,
-        socketId: socket.id,
-      });
-      socket.to(roomId).emit("user-joined", { userId });
-    }
-  });
-
-  socket.on("offer", ({ roomId, userId, offer }) => {
-    const room = rooms.get(roomId);
-    if (room) {
-      const target = room.participants.find((p) => p.id === userId);
-      if (target) {
-        io.to(target.socketId).emit("offer", {
-          userId: socket.id,
-          offer,
-        });
-      }
-    }
-  });
-
-  socket.on("answer", ({ roomId, userId, answer }) => {
-    const room = rooms.get(roomId);
-    if (room) {
-      const target = room.participants.find((p) => p.id === userId);
-      if (target) {
-        io.to(target.socketId).emit("answer", {
-          userId: socket.id,
-          answer,
-        });
-      }
-    }
-  });
-
-  socket.on("ice-candidate", ({ roomId, userId, candidate }) => {
-    const room = rooms.get(roomId);
-    if (room) {
-      const target = room.participants.find((p) => p.id === userId);
-      if (target) {
-        io.to(target.socketId).emit("ice-candidate", {
-          userId: socket.id,
-          candidate,
-        });
-      }
-    }
-  });
-
-  socket.on("leave-room", ({ roomId }) => {
-    const room = rooms.get(roomId);
-    if (room) {
-      room.participants = room.participants.filter(
-        (p) => p.socketId !== socket.id
-      );
-      socket.to(roomId).emit("user-left", { userId: socket.id });
-
-      if (room.participants.length === 0) {
-        rooms.delete(roomId);
-      }
-    }
+  // Rejoindre la salle de l'utilisateur
+  socket.on("join", (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`Utilisateur ${userId} a rejoint sa salle`);
   });
 
   socket.on("disconnect", () => {
     console.log("Un utilisateur s'est déconnecté:", socket.id);
-    rooms.forEach((room, roomId) => {
-      room.participants = room.participants.filter(
-        (p) => p.socketId !== socket.id
-      );
-      if (room.participants.length === 0) {
-        rooms.delete(roomId);
-      } else {
-        socket.to(roomId).emit("user-left", { userId: socket.id });
-      }
-    });
   });
 });
 
@@ -181,6 +109,11 @@ db.sync()
     server.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Serveur API + WebSocket lancé sur le port ${PORT}`);
       console.log(`🌐 URL du serveur: http://localhost:${PORT}`);
+      console.log("📡 Routes disponibles :");
+      console.log("- GET /api/users/*");
+      console.log("- POST /api/messages/send");
+      console.log("- GET /api/messages/conversation/:userId1/:userId2");
+      console.log("- PUT /api/messages/read/:messageId");
     });
   })
   .catch((err) => {

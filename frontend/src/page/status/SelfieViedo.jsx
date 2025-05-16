@@ -1,19 +1,7 @@
-/**
- * Composant SelfieViedo - Permet de capturer des vidéos selfie pour les statuts
- * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
- * @param {boolean} menuaction - État du menu
- * @param {boolean} SeeButton - État de visibilité du bouton
- * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
- */
 import React, { useState, useRef, useEffect } from "react";
 import "./status.css";
 
-const SelfieViedo = ({
-  setMenuaction,
-  menuaction,
-  SeeButton,
-  setSeeButton,
-}) => {
+const SelfieViedo = ({ setMenuaction, setSeeButton }) => {
   // Références pour la vidéo et le canvas
   const videoRef = useRef(null);
   const canvasRef = useRef(null);

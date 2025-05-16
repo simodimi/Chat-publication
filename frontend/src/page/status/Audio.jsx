@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import "./status.css";
 import { TbPointFilled } from "react-icons/tb";
 import { IoSend } from "react-icons/io5";
-import { FaPause, FaPlay, FaMicrophone, FaStop } from "react-icons/fa";
+import { FaMicrophone, FaStop } from "react-icons/fa";
 import { RiDeleteBin3Fill } from "react-icons/ri";
 import { useState, useEffect } from "react";
 

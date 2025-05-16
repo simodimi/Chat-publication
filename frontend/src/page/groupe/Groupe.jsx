@@ -1,182 +1,247 @@
-import React from "react";
-import nomane from "../../assets/icone/personne.jpeg";
-import { Link } from "react-router-dom";
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import { FaSearch, FaUserPlus, FaUserMinus } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
 import "./groupe.css";
-import { FaStar } from "react-icons/fa";
-import { group } from "../groupe/Testgroup";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Groupe = () => {
-  const [Selcet, setSelcet] = useState(null);
-  const [joingroup, setjoingroup] = useState(false);
-  const [addgroup, setaddgroup] = useState(true);
-  const [waiting, setwaiting] = useState(true);
-  const [hiddengroup, sethiddengroup] = useState(false);
-  const toggle = (id) => {
-    //setSelcet((prev) => ({ ...prev, [id]: !prev[id] })); selection et deselection plusieur elt.
-    setSelcet(id === Selcet ? null : id); //selection et deselection d'un element à la fois
-  };
-  //joindre un groupe
-  const handlejoingroup = () => {
-    setaddgroup(false);
-    setjoingroup((prev) => !prev);
-    sethiddengroup((prev) => !prev);
-    document.querySelector("#ButtonMenuAddgroup").style.display = "none";
-  };
-  //annuler
-  const handlecancel = () => {
-    document.querySelector("#ButtonMenuAddgroup").style.display = "block";
-    setjoingroup((prev) => !prev);
-    sethiddengroup((prev) => !prev);
-  };
-  //recherche
-  const [searchgroup, setSearchgroup] = useState("");
-  const handleGroupChange = (e) => {
-    setSearchgroup(e.target.value);
-  };
-  const filtergroup = group.filter((p) => {
-    return (
-      p.title.toLowerCase().includes(searchgroup.toLowerCase()) ||
-      p.description.toLowerCase().includes(searchgroup.toLowerCase())
-    );
-  });
-  return (
-    <div className="AppelHome">
-      <div className="AppelHomeLeft">
-        <p id="Appel">Mes Groupes</p>
+  const [userGroups, setUserGroups] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [showGroupDetails, setShowGroupDetails] = useState(false);
+  const { user } = useAuth();
 
-        <Box className="SearchCommunication">
-          <TextField
-            helperText=" "
-            className="SearchCommunicationInput"
-            id="demo-helper-text-aligned-no-helper"
-            label="Rechercher un  groupe"
-            type="search"
-            value={searchgroup}
-            onChange={handleGroupChange}
-          />
-        </Box>
-        <div className="ShowAppel">
-          <div className="AppelContact">
-            <div className="GroupeSearch">
-              {filtergroup.length > 0 ? (
-                filtergroup.map((p) => (
-                  <div
-                    className={`AppelContacts ${
-                      Selcet === p.id ? "Appelselects" : ""
-                    } `}
-                    style={{ display: "flex" }}
-                    onClick={() => toggle(p.id)}
-                    key={p.id}
-                  >
-                    <div className="AppelContactImg">
-                      <img src={p.photo} alt="" />
-                    </div>
-                    <div className="AppelName">
-                      <div className="AppelNameLeft">
-                        <p>{p.title} </p>
-                        <p>{p.description} </p>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p>Aucun groupe trouvé</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="AppelHomeRight">
-        <p id="Appel">rechercher des nouveaux groupes</p>
-        <Box className="SearchCommunication">
-          <TextField
-            helperText=" "
-            className="SearchCommunicationInput"
-            id="demo-helper-text-aligned-no-helper"
-            label="Rechercher un  groupe"
-          />
-        </Box>
-        <div className="NameInfosCall">
-          <div className="NameInfosCallUp">
-            <div className="CallUpLeft">
-              <img src={nomane} alt="" />
-              <div className="">
-                <p>Groupe alimentaire</p>
-                <span>histoire de sorcellerie</span>
-              </div>
-            </div>
-            <div className="CallUpRight">
-              <div className="ButtonMenu" id="ButtonMenuAddgroup">
-                <p
-                  style={{
-                    margin: "auto",
-                  }}
-                  onClick={() => handlejoingroup()}
+  const loadUserGroups = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/groups/user/${user.id_utilisateur}`
+      );
+      if (!response.ok)
+        throw new Error("Erreur lors du chargement des groupes");
+      const data = await response.json();
+      setUserGroups(data);
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  };
+
+  const searchGroups = async (query) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/groups/search?query=${encodeURIComponent(
+          query
+        )}`
+      );
+      if (!response.ok) throw new Error("Erreur lors de la recherche");
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error("Erreur:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const joinGroup = async (groupId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/groups/${groupId}/join`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: user.id_utilisateur }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Erreur lors de l'adhésion au groupe");
+
+      // Recharger les groupes de l'utilisateur
+      loadUserGroups();
+      // Mettre à jour les résultats de recherche
+      searchGroups(searchQuery);
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Erreur lors de l'adhésion au groupe");
+    }
+  };
+
+  const leaveGroup = async (groupId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/groups/${groupId}/leave`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: user.id_utilisateur }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Erreur lors du désabonnement");
+
+      // Recharger les groupes de l'utilisateur
+      loadUserGroups();
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Erreur lors du désabonnement");
+    }
+  };
+
+  const loadGroupDetails = async (groupId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/groups/${groupId}`
+      );
+      if (!response.ok)
+        throw new Error("Erreur lors du chargement des détails");
+      const data = await response.json();
+      setSelectedGroup(data);
+      setShowGroupDetails(true);
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      loadUserGroups();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery) {
+        searchGroups(searchQuery);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  return (
+    <div className="groupe-container">
+      <div className="groupe-left">
+        <h2>Mes Groupes</h2>
+        {userGroups.map((group) => (
+          <Card key={group.id_groupe} className="group-card">
+            <CardContent>
+              <Typography variant="h6">{group.nom_groupe}</Typography>
+              <Typography color="textSecondary">{group.description}</Typography>
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => leaveGroup(group.id_groupe)}
                 >
-                  rejoindre le groupe
-                </p>
-              </div>
-              {hiddengroup ? (
-                <div className="">
-                  {addgroup ? (
-                    <div className="ButtonMenu">
-                      <p
-                        style={{
-                          margin: "auto",
-                        }}
-                      >
-                        quitter le groupe
-                      </p>
-                    </div>
-                  ) : (
-                    <p
-                      className="ButtonMenu"
-                      style={{
-                        margin: "auto",
-                      }}
-                      onClick={() => handlecancel()}
-                    >
-                      annuler la demande
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p></p>
-              )}
-            </div>
-          </div>
-          <div className="NameInfosCallDown">
-            {joingroup ? (
-              <div className="CallDownLefts">
-                <div className="CallDownLeftsText">
-                  {waiting ? (
-                    <p>En attente d'acceptation</p>
-                  ) : (
-                    <p
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "5px",
-                      }}
-                    >
-                      Menbre du groupe <FaStar color="yellow" />{" "}
-                    </p>
-                  )}
-                </div>
-                <span>
-                  <AiOutlineLoading3Quarters id="loading" />
-                </span>
-              </div>
-            ) : (
-              <p></p>
-            )}
-          </div>
-        </div>
+                  <FaUserMinus style={{ marginRight: "8px" }} />
+                  Se désabonner
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        ))}
       </div>
+
+      <div className="groupe-right">
+        <h2>Rechercher des Groupes</h2>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Rechercher un groupe..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          InputProps={{
+            startAdornment: <FaSearch style={{ marginRight: "8px" }} />,
+          }}
+        />
+
+        {loading ? (
+          <div id="loading">Chargement...</div>
+        ) : (
+          <div className="search-results">
+            {searchResults.map((group) => (
+              <Card key={group.id_groupe} className="group-card">
+                <CardContent>
+                  <Typography variant="h6">{group.nom_groupe}</Typography>
+                  <Typography color="textSecondary">
+                    {group.description}
+                  </Typography>
+                  <Box
+                    sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}
+                  >
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => joinGroup(group.id_groupe)}
+                    >
+                      <FaUserPlus style={{ marginRight: "8px" }} />
+                      Rejoindre
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <Dialog
+        open={showGroupDetails}
+        onClose={() => setShowGroupDetails(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        {selectedGroup && (
+          <>
+            <DialogTitle>{selectedGroup.nom_groupe}</DialogTitle>
+            <DialogContent>
+              <Typography variant="body1" paragraph>
+                {selectedGroup.description}
+              </Typography>
+              <Typography variant="h6" gutterBottom>
+                Membres du groupe
+              </Typography>
+              <div className="members-list">
+                {selectedGroup.membres?.map((member) => (
+                  <div key={member.id_utilisateur} className="member-item">
+                    <img
+                      src={member.photo_profil || "/default-avatar.png"}
+                      alt={member.nom_utilisateur}
+                    />
+                    <Typography>{member.nom_utilisateur}</Typography>
+                  </div>
+                ))}
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setShowGroupDetails(false)}>Fermer</Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </div>
   );
 };

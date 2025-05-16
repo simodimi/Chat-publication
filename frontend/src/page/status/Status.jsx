@@ -1,17 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import Draggable from "react-draggable"; //deplacement des composants
 import "./status.css";
 import nomane from "../../assets/icone/personne.jpeg";
 import { GiCrossMark } from "react-icons/gi";
 import { MdAddAPhoto, MdSms, MdOutlineFormatSize } from "react-icons/md";
-import { IoColorPalette, IoVideocam, IoClose } from "react-icons/io5";
-import {
-  FaFileVideo,
-  FaFilter,
-  FaMicrophone,
-  FaPlay,
-  FaPause,
-} from "react-icons/fa";
+import { IoColorPalette, IoVideocam } from "react-icons/io5";
+import { FaFileVideo, FaFilter, FaMicrophone } from "react-icons/fa";
 import { PiSelectionBackground } from "react-icons/pi";
 import { FaImage } from "react-icons/fa6";
 import { BsEmojiLaughingFill, BsEmojiWinkFill } from "react-icons/bs";

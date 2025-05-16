@@ -24,12 +24,16 @@ import pdf from "../../assets/pdfnew.png";
 import { FaCloudDownloadAlt } from "react-icons/fa";
 import dossier from "../../assets/dossier.png";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const recorder = new MicRecorder({ bitRate: 128 });
 const Message = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { selectedUser, returnToConversation } = location.state || {};
+  const { user } = useAuth();
+  const [friends, setFriends] = useState([]);
+  const [loading, setLoading] = useState(true);
   //------------------------------------------------------
   //PARTIE GAUCHE/gestion des contacts et des recherches
   //------------------------------------------------------
@@ -49,8 +53,10 @@ const Message = () => {
     setSearchgroup(e.target.value);
   };
   //filtre selon la recherche
-  const filtergroup = person.filter((p) => {
-    return p.title.toLowerCase().includes(searchgroup.toLowerCase());
+  const filtergroup = friends.filter((friend) => {
+    return friend.name_utilisateur
+      .toLowerCase()
+      .includes(searchgroup.toLowerCase());
   });
   //gestion de la recherche dans la liste de tous les groupes
   const handleGroupallChange = (e) => {
@@ -162,37 +168,40 @@ const Message = () => {
     setSend(free.trim() === ""); //si égalité on aura setsend(true)
   };
   //envoi d'un message
-  const sendmessage = () => {
-    //si l'utilisateur est null on ne peut pas envoyer de message
-    if (!SelectedUser) return;
+  const sendmessage = async () => {
+    if (!SelectedUser || !user) return;
+
     const newMessage = {
-      id: Date.now(), //un id unique
+      id: Date.now(),
       text: copytext ? messageReponse : message,
       time: new Date().toLocaleTimeString("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
       }),
       type: "text",
-      //si on repond à un message on envoie l'id du message
-      //selectedmessage?.id est l'id du message auquel on repond
-      //id est la propriété de l'objet message
       replyTo: copytext ? selectedmessage?.id : null,
     };
-    setMessagesByUser((prev) => ({
-      ...prev,
-      //si l'id de l'utilisateur est null on renvoie un tableau vide
-      //si l'id de l'utilisateur est different de null on renvoie le tableau des messages de l'utilisateur
-      //et on ajoute le nouveau message
-      //selectedUser.id est l'id de l'utilisateur selectionné
-      [SelectedUser.id]: [...(prev[SelectedUser.id] || []), newMessage],
-    }));
-    // Réinitialiser les champs après l'envoi
-    setMessage("");
-    setMessageReponse("");
-    setSend(true);
-    setcopytext(false);
-    setafficheranswer([]);
-    settableauAnswer([]);
+
+    try {
+      // Envoyer au backend
+      await sendMessageToBackend(newMessage);
+
+      // Mettre à jour l'état local
+      setMessagesByUser((prev) => ({
+        ...prev,
+        [SelectedUser.id]: [...(prev[SelectedUser.id] || []), newMessage],
+      }));
+
+      // Réinitialiser les champs
+      setMessage("");
+      setMessageReponse("");
+      setSend(true);
+      setcopytext(false);
+      setafficheranswer([]);
+      settableauAnswer([]);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
+    }
   };
   const handleEmojiClick = (e) => {
     setMessage((prev) => prev + e.emoji);
@@ -209,53 +218,126 @@ const Message = () => {
     setEmpty(true);
   };
 
-  // Effet pour sauvegarder les messages dans le localStorage
-  useEffect(() => {
-    const savedMessages = localStorage.getItem("messages");
-    if (savedMessages) {
-      try {
-        const parsedMessages = JSON.parse(savedMessages);
-        setMessagesByUser(parsedMessages);
-      } catch (error) {
-        console.error("Erreur lors du chargement des messages:", error);
-      }
-    }
-  }, []);
-
-  // Effet pour sauvegarder les messages quand ils changent
-  useEffect(() => {
+  // Charger les messages depuis le backend
+  const loadMessages = async (userId1, userId2) => {
     try {
-      localStorage.setItem("messages", JSON.stringify(messageByUser));
+      console.log(
+        "Chargement des messages pour les utilisateurs:",
+        userId1,
+        userId2
+      );
+      const response = await fetch(
+        `http://localhost:5000/api/messages/conversation/${userId1}/${userId2}`
+      );
+      if (!response.ok)
+        throw new Error("Erreur lors du chargement des messages");
+      const messages = await response.json();
+
+      // Transformer les messages du backend au format attendu par le frontend
+      const formattedMessages = messages.map((msg) => ({
+        id: msg.id,
+        text: msg.content,
+        time: new Date(msg.createdAt).toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        type: msg.type || "text",
+        data: msg.mediaUrl,
+        userStatus: "home",
+        replyTo: msg.replyTo,
+      }));
+
+      console.log("Messages chargés:", formattedMessages);
+      setMessagesByUser((prev) => ({
+        ...prev,
+        [userId2]: formattedMessages,
+      }));
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde des messages:", error);
+      console.error("Erreur lors du chargement des messages:", error);
     }
-  }, [messageByUser]);
+  };
 
-  // Effet pour gérer la redirection après un appel
-  useEffect(() => {
-    if (returnToConversation && selectedUser) {
-      handleUserSelect(selectedUser);
-      // Nettoyer l'état de navigation
-      window.history.replaceState({}, document.title);
+  // Envoyer un message au backend
+  const sendMessageToBackend = async (message) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/messages/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          senderId: user.id_utilisateur,
+          receiverId: SelectedUser.id,
+          content: message.text,
+          type: message.type || "text",
+          mediaUrl: message.data,
+          replyTo: message.replyTo,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Erreur lors de l'envoi du message");
+      const savedMessage = await response.json();
+      return savedMessage;
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
+      throw error;
     }
-  }, [returnToConversation, selectedUser]);
+  };
 
-  // Effet pour charger les messages au démarrage
+  // Charger les messages quand un utilisateur est sélectionné
   useEffect(() => {
-    const loadMessages = () => {
-      const savedMessages = localStorage.getItem("messages");
-      if (savedMessages) {
-        try {
-          const parsedMessages = JSON.parse(savedMessages);
-          setMessagesByUser(parsedMessages);
-        } catch (error) {
-          console.error("Erreur lors du chargement des messages:", error);
-        }
-      }
-    };
+    if (SelectedUser && user) {
+      console.log(
+        "Chargement des messages pour:",
+        user.id_utilisateur,
+        SelectedUser.id
+      );
+      loadMessages(user.id_utilisateur, SelectedUser.id);
+    }
+  }, [SelectedUser, user]);
 
-    loadMessages();
-  }, []);
+  // Charger les messages au démarrage pour tous les utilisateurs
+  useEffect(() => {
+    if (user) {
+      // Charger les messages pour chaque utilisateur dans la liste
+      filtergroup.forEach(async (contact) => {
+        await loadMessages(user.id_utilisateur, contact.id_utilisateur);
+      });
+    }
+  }, [user]);
+
+  // Charger la liste des amis
+  const loadFriends = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/users/friends/${user.id_utilisateur}`
+      );
+      if (!response.ok) throw new Error("Erreur lors du chargement des amis");
+      const data = await response.json();
+      setFriends(data);
+    } catch (error) {
+      console.error("Erreur lors du chargement des amis:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Charger les amis au démarrage
+  useEffect(() => {
+    if (user) {
+      loadFriends();
+    }
+  }, [user]);
+
+  // Charger les messages au démarrage pour tous les utilisateurs
+  useEffect(() => {
+    if (user) {
+      // Charger les messages pour chaque utilisateur dans la liste
+      filtergroup.forEach(async (contact) => {
+        await loadMessages(user.id_utilisateur, contact.id_utilisateur);
+      });
+    }
+  }, [user]);
 
   // --------------------------------------------------------
   // GESTION DE LA SÉLECTION DES UTILISATEURS ET DES MESSAGES
@@ -781,7 +863,13 @@ const Message = () => {
                       Tous les contacts
                     </p>
                     <div className="GroupeSearch">
-                      {filtergroupall.length > 0 ? (
+                      {loading ? (
+                        <p
+                          style={{ display: "flex", justifyContent: "center" }}
+                        >
+                          Chargement des amis...
+                        </p>
+                      ) : filtergroupall.length > 0 ? (
                         filtergroupall.map((p) => (
                           <div
                             className={`AppelContacts ${
@@ -859,43 +947,57 @@ const Message = () => {
         <div className="ShowAppel">
           <div className="AppelContact">
             <div className="GroupeSearch">
-              {filtergroup.length > 0 ? (
-                filtergroup.map((p) => (
+              {loading ? (
+                <p style={{ display: "flex", justifyContent: "center" }}>
+                  Chargement des amis...
+                </p>
+              ) : filtergroup.length > 0 ? (
+                filtergroup.map((friend) => (
                   <div
                     className={`AppelContacts ${
-                      SelectionUser === p.id ? "Appelselects" : ""
+                      SelectionUser === friend.id_utilisateur
+                        ? "Appelselects"
+                        : ""
                     } `}
                     style={{ display: "flex" }}
                     onClick={() => {
-                      toggle(p.id);
-                      handleUserSelect(p);
+                      toggle(friend.id_utilisateur);
+                      handleUserSelect(friend);
                     }}
-                    key={p.id}
+                    key={friend.id_utilisateur}
                   >
                     <div className="AppelContactImg">
-                      <img src={p.photo} alt="" />
+                      <img
+                        src={friend.photo_profil || "default-avatar.png"}
+                        alt=""
+                      />
                     </div>
                     <div className="AppelName">
                       <div className="AppelNameLeft">
-                        <p>{p.title} </p>
+                        <p>{friend.name_utilisateur}</p>
                         <p className="last-message">
-                          {messageByUser[p.id] && messageByUser[p.id].length > 0
-                            ? messageByUser[p.id][
-                                messageByUser[p.id].length - 1 //dernier message
+                          {messageByUser[friend.id_utilisateur] &&
+                          messageByUser[friend.id_utilisateur].length > 0
+                            ? messageByUser[friend.id_utilisateur][
+                                messageByUser[friend.id_utilisateur].length - 1
                               ].type.startsWith("text")
-                              ? messageByUser[p.id][
-                                  messageByUser[p.id].length - 1
+                              ? messageByUser[friend.id_utilisateur][
+                                  messageByUser[friend.id_utilisateur].length -
+                                    1
                                 ].text
-                              : messageByUser[p.id][
-                                  messageByUser[p.id].length - 1
+                              : messageByUser[friend.id_utilisateur][
+                                  messageByUser[friend.id_utilisateur].length -
+                                    1
                                 ].type.startsWith("image")
                               ? "📷 Image"
-                              : messageByUser[p.id][
-                                  messageByUser[p.id].length - 1
+                              : messageByUser[friend.id_utilisateur][
+                                  messageByUser[friend.id_utilisateur].length -
+                                    1
                                 ].type.startsWith("video")
                               ? "🎥 Vidéo"
-                              : messageByUser[p.id][
-                                  messageByUser[p.id].length - 1
+                              : messageByUser[friend.id_utilisateur][
+                                  messageByUser[friend.id_utilisateur].length -
+                                    1
                                 ].type.startsWith("audio")
                               ? "🎵 Audio"
                               : "📄 Fichier"
@@ -906,13 +1008,8 @@ const Message = () => {
                   </div>
                 ))
               ) : (
-                <p
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                  }}
-                >
-                  Aucun groupe trouvé
+                <p style={{ display: "flex", justifyContent: "center" }}>
+                  Aucun ami trouvé
                 </p>
               )}
             </div>

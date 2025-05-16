@@ -1,11 +1,3 @@
-/**
- * Composant Emoji - Permet d'ajouter des émojis dans les statuts
- * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
- * @param {boolean} menuaction - État du menu
- * @param {boolean} SeeButton - État de visibilité du bouton
- * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
- * @param {Function} setSelectedEmoji - Fonction pour définir l'émoji sélectionné
- */
 import React, { useEffect, useRef } from "react";
 import "./status.css";
 import EmojiPicker from "emoji-picker-react";
@@ -13,8 +5,7 @@ import { useState } from "react";
 
 const Emoji = ({
   setMenuaction,
-  menuaction,
-  SeeButton,
+
   setSeeButton,
   setSelectedEmoji,
 }) => {
@@ -82,10 +73,6 @@ const Emoji = ({
     "🤔",
   ];
 
-  /**
-   * Gère la sélection d'un émoji
-   * @param {string} emoji - L'émoji sélectionné
-   */
   const handleEmojiSelect = (emoji) => {
     setSelectedEmoji(emoji);
     // Cacher le menu après la sélection

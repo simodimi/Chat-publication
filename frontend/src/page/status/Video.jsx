@@ -1,21 +1,7 @@
-/**
- * Composant Video - Permet de sélectionner et afficher des vidéos pour les statuts
- * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
- * @param {boolean} menuaction - État du menu
- * @param {boolean} SeeButton - État de visibilité du bouton
- * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
- */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./status.css";
 
-const Video = ({
-  setMenuaction,
-  menuaction,
-  SeeButton,
-  setSeeButton,
-  showVideo,
-  setPublication,
-}) => {
+const Video = ({ setMenuaction, setSeeButton, showVideo, setPublication }) => {
   // État pour stocker la vidéo sélectionnée
   const [selectedVideo, setSelectedVideo] = useState(null);
   // État pour gérer la lecture de la vidéo

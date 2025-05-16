@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  Typography,
-  Button,
-  IconButton,
-} from "@mui/material";
+import { Dialog, DialogContent, Button } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import { MdEmojiEmotions, MdMenu } from "react-icons/md";

@@ -1,10 +1,3 @@
-/**
- * Composant Photos - Permet de sélectionner et afficher des photos pour les statuts
- * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
- * @param {boolean} menuaction - État du menu
- * @param {boolean} SeeButton - État de visibilité du bouton
- * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
- */
 import React, { useEffect } from "react";
 import "./status.css";
 import { useState } from "react";
@@ -14,8 +7,6 @@ const Photos = ({
   filterPhoto,
   setPublication,
   setMenuaction,
-  menuaction,
-  SeeButton,
   setSeeButton,
 }) => {
   // État pour stocker l'image sélectionnée
@@ -32,10 +23,6 @@ const Photos = ({
     }
   }, [showPhoto]);
 
-  /**
-   * Gère la sélection d'une image
-   * @param {Event} event - Événement de sélection de fichier
-   */
   const handleImageSelect = (event) => {
     const file = event.target.files[0];
     if (file) {

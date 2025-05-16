@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import image from "../../assets/social.png";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -13,6 +12,7 @@ import { toast } from "react-toastify";
 import { useId } from "react";
 import { OutlinedInput, InputLabel } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 // Styles réutilisables pour tous les champs
 const textFieldStyles = {
@@ -24,7 +24,7 @@ const textFieldStyles = {
       "&.Mui-focused fieldset": { borderColor: "white" },
     },
   },
-  InputLabelProps: {
+  inputLabelProps: {
     sx: {
       color: "white",
       "&.Mui-focused": { color: "white" },
@@ -37,7 +37,7 @@ const CustomTextField = (props) => {
   return (
     <TextField
       sx={textFieldStyles.sx}
-      InputLabelProps={textFieldStyles.InputLabelProps}
+      inputLabelProps={textFieldStyles.inputLabelProps}
       {...props}
     />
   );
@@ -46,6 +46,8 @@ const CustomTextField = (props) => {
 const Login = ({ setUser }) => {
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleMouseDownPassword = (event) => {
     event.preventDefault();
@@ -57,14 +59,6 @@ const Login = ({ setUser }) => {
     email_utilisateur: "",
     password_utilisateur: "",
   });
-  const navigate = useNavigate();
-  // Vérifier si l'utilisateur est déjà connecté
-  /*useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      navigate("/publication");
-    }
-  }, [navigate]);*/
 
   const handleChange = (e) => {
     setFormData({
@@ -78,7 +72,6 @@ const Login = ({ setUser }) => {
     setError(false);
     setErrorMessage("");
 
-    // Vérification des champs vides
     if (!formData.email_utilisateur || !formData.password_utilisateur) {
       setError(true);
       setErrorMessage("Tous les champs sont obligatoires");
@@ -87,8 +80,7 @@ const Login = ({ setUser }) => {
     }
 
     try {
-      // Envoi des données au serveur
-      const response = await fetch("http://localhost:5000/users/login", {
+      const response = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -99,33 +91,28 @@ const Login = ({ setUser }) => {
         }),
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
-        console.error("Erreur du serveur:", data);
-        setErrorMessage(data.message || "Erreur lors de la connexion");
+        const errorData = await response.json();
+        console.error("Erreur du serveur:", errorData);
+        setErrorMessage(errorData.message || "Erreur lors de la connexion");
         setError(true);
-        toast.error(data.message || "Erreur de connexion");
+        toast.error(errorData.message || "Erreur de connexion");
         return;
       }
 
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
       // Construction de l'URL complète de la photo de profil
       const photo_profil = data.photo_profil
         ? `http://localhost:5000${data.photo_profil}`
         : null;
 
-      console.log("Photo de profil reçue:", photo_profil);
-      localStorage.setItem(
-        "userData",
-        JSON.stringify({ ...data, photo_profil })
-      );
-      console.log(
-        "Données stockées dans localStorage:",
-        JSON.parse(localStorage.getItem("userData"))
-      );
-
-      toast.success(`Bienvenue ${data.name_utilisateur}`);
+      const userData = { ...data, photo_profil };
+      login(userData);
       setUser(true);
+      toast.success(`Bienvenue ${data.name_utilisateur}`, {
+        autoClose: 1500,
+      });
       navigate("/publication");
     } catch (error) {
       console.error("Erreur de connexion:", error);
@@ -201,7 +188,11 @@ const Login = ({ setUser }) => {
                 <Link to={"/inscription"}> inscrivez-vous</Link>{" "}
               </span>
             </p>
-            <p>mot de passe oublie?</p>
+            <p>
+              <span>
+                <Link to={"/forgetpassword"}>mot de passe oublie?</Link>
+              </span>
+            </p>
           </div>
         </form>
       </div>

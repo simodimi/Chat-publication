@@ -1,16 +1,8 @@
-/**
- * Composant Selfie - Gère la capture de selfies avec la caméra
- * @param {Function} setMenuaction - Fonction pour gérer l'état du menu
- * @param {boolean} menuaction - État du menu
- * @param {boolean} SeeButton - État de visibilité du bouton
- * @param {Function} setSeeButton - Fonction pour gérer la visibilité du bouton
- */
 import React from "react";
 import { useRef } from "react";
 import { useState, useEffect } from "react";
-import { background } from "./test";
 
-const Selfie = ({ setMenuaction, menuaction, SeeButton, setSeeButton }) => {
+const Selfie = ({ setMenuaction, setSeeButton }) => {
   // État pour stocker l'image du selfie
   const [selfie, setSelfie] = useState(null);
   // État pour gérer le flux vidéo de la caméra

@@ -98,3 +98,28 @@
     color: green;
   }
 }
+.number,
+.horloge {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+.number span {
+  border: 1px solid white;
+  margin: 0;
+  padding: 15px;
+  border-radius: 10px;
+  font-weight: bold;
+  position: relative;
+}
+.number span::after {
+  position: absolute;
+  content: "";
+  width: 20px;
+  display: flex;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid white;
+}
