@@ -41,8 +41,13 @@ const loginUser = async (req, res) => {
 
     // Construction de l'URL complète de la photo de profil
     const photo_profil = user.photo_profil
-      ? `http://localhost:5000${user.photo_profil}`
+      ? user.photo_profil.startsWith("http")
+        ? user.photo_profil
+        : `http://localhost:5000/uploads/${user.photo_profil.split("/").pop()}`
       : null;
+
+    console.log("Photo de profil originale:", user.photo_profil); // Pour le débogage
+    console.log("Photo de profil construite:", photo_profil); // Pour le débogage
 
     // Générer le token JWT
     const token = jwt.sign(

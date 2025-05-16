@@ -12,7 +12,6 @@ import Ami from "./page/amis/Ami";
 import Profil from "./page/profil/Profil";
 import Groupe from "./page/groupe/Groupe";
 import { useState } from "react";
-import WrittingPublication from "./page/publications/WrittingPublication";
 import Call from "./page/contain/Call";
 import Publier from "./page/publications/Publier";
 import GroupeSelection from "./page/groupe/GroupeSelection";
@@ -56,10 +55,7 @@ function App() {
                   <Route path="parametre" element={<Parametre />} />
                   <Route path="profil" element={<Profil />} />
                   <Route path="groupe" element={<Groupe />} />
-                  <Route
-                    path="writepublication"
-                    element={<WrittingPublication />}
-                  />
+
                   <Route path="appelusers" element={<Call />} />
                   <Route path="fairepublication" element={<Publier />} />
                   <Route path="groupeSelection" element={<GroupeSelection />} />

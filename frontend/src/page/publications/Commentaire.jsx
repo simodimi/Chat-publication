@@ -1,3 +1,4 @@
+/*
 import React from "react";
 import "./commentaire.css";
 import PropTypes from "prop-types";
@@ -96,3 +97,4 @@ export default function SpringModal() {
     </div>
   );
 }
+*/

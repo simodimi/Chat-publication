@@ -102,12 +102,22 @@ const Login = ({ setUser }) => {
 
       const data = await response.json();
       localStorage.setItem("token", data.token);
+
       // Construction de l'URL complète de la photo de profil
       const photo_profil = data.photo_profil
-        ? `http://localhost:5000${data.photo_profil}`
+        ? data.photo_profil.startsWith("http")
+          ? data.photo_profil
+          : `http://localhost:5000${data.photo_profil}`
         : null;
 
-      const userData = { ...data, photo_profil };
+      console.log("Photo de profil reçue:", data.photo_profil); // Pour le débogage
+      console.log("Photo de profil construite:", photo_profil); // Pour le débogage
+
+      const userData = {
+        ...data,
+        photo_profil: photo_profil,
+      };
+      localStorage.setItem("userData", JSON.stringify(userData));
       login(userData);
       setUser(true);
       toast.success(`Bienvenue ${data.name_utilisateur}`, {

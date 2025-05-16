@@ -7,6 +7,7 @@ const db = require("./config/database"); // Sequelize instance
 const userRoutes = require("./routes/UserRoute"); // Tes routes utilisateurs
 const messageRoutes = require("./routes/messageRoutes"); // Ajout des routes de messages
 const groupRoutes = require("./routes/groupRoutes"); // Ajout des routes de groupes
+const publicationRoutes = require("./routes/PublicationRoute");
 const path = require("path");
 const fs = require("fs");
 
@@ -58,6 +59,7 @@ app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes); // Ajout des routes de messages
 app.use("/api/groups", groupRoutes); // Ajout des routes de groupes
+app.use("/api/publications", publicationRoutes);
 
 // Middleware pour gérer les erreurs
 app.use((err, req, res, next) => {

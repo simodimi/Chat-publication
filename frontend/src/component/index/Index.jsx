@@ -139,7 +139,7 @@ const Index = ({ UpdateWidth, UpdateWidths }) => {
                 </div>
               </Link>
             </div>
-            <div
+            {/*   <div
               onClick={() => setChoix("groupe")}
               className={Choix === "groupe" ? "active" : ""}
             >
@@ -156,11 +156,11 @@ const Index = ({ UpdateWidth, UpdateWidths }) => {
                   </div>
                 </div>
               </Link>
-            </div>
+            </div>*/}
           </div>
 
           <div className="IndexHomeDown">
-            <div
+            {/* <div
               onClick={() => setChoix("important")}
               className={Choix === "important" ? "active" : ""}
             >
@@ -191,7 +191,7 @@ const Index = ({ UpdateWidth, UpdateWidths }) => {
                   </div>
                 </div>
               </Link>
-            </div>
+            </div> */}
             <div
               onClick={() => setChoix("parametre")}
               className={Choix === "parametre" ? "active" : ""}

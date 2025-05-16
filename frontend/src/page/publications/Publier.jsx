@@ -113,8 +113,21 @@ const Publier = ({ onPublish }) => {
             sx={{
               scrollbarWidth: "thin",
               scrollbarColor: "gainsboro  rgba(102, 145, 211, 0.2)",
-
-              "& .MuiInputBase-input": { color: "white" },
+              "& .MuiInputBase-input": {
+                color: "black",
+                backgroundColor: "white",
+              },
+              "& .MuiInputLabel-root": {
+                color: "black",
+              },
+              "& .MuiOutlinedInput-root": {
+                "& fieldset": {
+                  borderColor: "rgba(0, 0, 0, 0.23)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgba(0, 0, 0, 0.5)",
+                },
+              },
             }}
           />
 
