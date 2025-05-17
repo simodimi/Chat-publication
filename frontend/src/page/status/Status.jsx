@@ -24,42 +24,66 @@ import EmojiMobile from "./EmojiMobile";
 import { TiThMenu } from "react-icons/ti";
 import { RiFontSize } from "react-icons/ri";
 
-// Données de test pour les utilisateurs et leurs statuts
-const mockUsers = [
-  {
-    id: 1,
-    name: "John Doe",
-    photo: nomane,
-    statuses: [
-      {
-        id: 1,
-        type: "image",
-        content: "https://example.com/status1.jpg",
-        timestamp: new Date(Date.now() - 3600000), // 1 heure
-        viewed: false,
-      },
-      {
-        id: 2,
-        type: "video",
-        content: "https://example.com/status2.mp4",
-        timestamp: new Date(Date.now() - 7200000), // 2 heures
-        viewed: true,
-      },
-    ],
-  },
-  // Ajoutez d'autres utilisateurs ici
-];
+const StatusCircle = ({ numStatuses = 0, radius = 30, strokeWidth = 3 }) => {
+  const center = 30;
+  const circumference = 2 * Math.PI * radius;
+  const gap = 0.05; // Espace entre les arcs (en radians)
+
+  const arcs = Array.from({ length: numStatuses }, (_, i) => {
+    const startAngle = (2 * Math.PI * i) / numStatuses + gap;
+    const endAngle = (2 * Math.PI * (i + 1)) / numStatuses - gap;
+
+    const startX = center + radius * Math.cos(startAngle);
+    const startY = center + radius * Math.sin(startAngle);
+    const endX = center + radius * Math.cos(endAngle);
+    const endY = center + radius * Math.sin(endAngle);
+
+    const largeArcFlag = endAngle - startAngle > Math.PI ? 1 : 0;
+
+    const d = `
+      M ${startX} ${startY}
+      A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY}
+    `;
+
+    return (
+      <path
+        key={i}
+        d={d}
+        stroke="#4CAF50"
+        strokeWidth={strokeWidth}
+        fill="none"
+      />
+    );
+  });
+
+  return (
+    <svg
+      width="60"
+      height="60"
+      style={{ position: "absolute", top: 0, left: 0 }}
+    >
+      {arcs}
+      <circle
+        cx={center}
+        cy={center}
+        r={radius - strokeWidth}
+        fill="transparent"
+      />
+    </svg>
+  );
+};
 
 const Status = () => {
   const [publication, setPublication] = useState(false);
-  const [selection, setselection] = useState(false); //selection pour background away
-  const [createStatut, setCreateStatut] = useState(true); //bouton pour apercu de la div de creation des status
-  //menu option
-  const [SelectionButton, setSelectionButton] = useState(true); ///////menu
-  const [ButtonClick, setButtonClick] = useState(false);
-  const [SeeButton, setSeeButton] = useState(false);
+  const [selection, setselection] = useState(false);
+  const [createStatut, setCreateStatut] = useState(true);
+  const [statuts, setStatuts] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [currentStatusIndex, setCurrentStatusIndex] = useState(0);
+  const [isViewingStatus, setIsViewingStatus] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [menuaction, setMenuaction] = useState(true);
-  //option menu
   const [selfieButton, setSelfieButton] = useState(true);
   const [videoButton, setVideoButton] = useState(true);
   const [bgButton, setBgButton] = useState(true);
@@ -68,15 +92,57 @@ const Status = () => {
   const [emojiButton, setEmojiButton] = useState(true);
   const [styleButton, setStyleButton] = useState(true);
   const [filtreButton, setFiltreButton] = useState(true);
-  const handleChoice = () => {
-    setButtonClick(!ButtonClick);
-    setSelectionButton(!SelectionButton);
-    setSeeButton(!SeeButton);
-  };
-  //visualisation audio
+  const [ButtonClick, setButtonClick] = useState(false);
+  const [SeeButton, setSeeButton] = useState(false);
+  const [SelectionButton, setSelectionButton] = useState(true);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [currentFilter, setCurrentFilter] = useState("none");
   const [visualisationAudio, setVisualisationAudio] = useState(false);
-  //liste des status
-  const [statuts, setStatuts] = useState([]);
+  const [visualisationTexte, setVisualisationTexte] = useState(false);
+  const [visualisationEmoji, setVisualisationEmoji] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState(null);
+  const [visualisationColorText, setVisualisationColorText] = useState(false);
+  const [colorText, setcolorText] = useState("black");
+  const [visualisationBgText, setVisualisationBgText] = useState(false);
+  const [bgtext, setbgtext] = useState("");
+  const [visualisationTailleText, setVisualisationTailleText] = useState(false);
+  const [taille, setTaille] = useState("14px");
+  const [visualisationFiltre, setVisualisationFiltre] = useState(false);
+  const [filterPhoto, setFilterPhoto] = useState("none");
+  const [visualisationFont, setVisualisationFont] = useState(false);
+  const [font, setFont] = useState("roboto");
+  const [visualisationSelfie, setVisualisationSelfie] = useState(false);
+  const [isMobileEmojiMode, setIsMobileEmojiMode] = useState(false);
+  const [mobileEmojis, setMobileEmojis] = useState([]);
+  const [visualisationEmojiMobile, setVisualisationEmojiMobile] =
+    useState(false);
+  const [visualisationSelfieVideo, setVisualisationSelfieVideo] =
+    useState(false);
+  const [refphotos, setRefphotos] = useState(null);
+  const [showPhoto, setShowPhoto] = useState(null);
+  const [visualisationPhoto, setVisualisationPhoto] = useState(false);
+  const [refvideo, setRefvideo] = useState(null);
+  const [showVideo, setShowVideo] = useState(null);
+  const [visualisationVideo, setVisualisationVideo] = useState(false);
+  const [closePrincipal, setClosePrincipal] = useState(false);
+
+  const progressRef = useRef(null);
+  const audioRef = useRef(null);
+  const statusTimerRef = useRef(null);
+
+  const formatTime = (date) => {
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (minutes < 60) return `${minutes}m`;
+    if (hours < 24) return `${hours}h`;
+    return `${days}j`;
+  };
+
   const audioview = () => {
     setVisualisationAudio(true);
     setVisualisationTexte(false);
@@ -92,8 +158,7 @@ const Status = () => {
     setVisualisationFont(false);
     setVisualisationSelfieVideo(false);
   };
-  //visualisation texte
-  const [visualisationTexte, setVisualisationTexte] = useState(false);
+
   const textview = () => {
     setSelfieButton(false);
     setVideoButton(false);
@@ -113,8 +178,7 @@ const Status = () => {
     setVisualisationEmojiMobile(false);
     setMenuaction(true);
   };
-  //visualisation emoji
-  const [visualisationEmoji, setVisualisationEmoji] = useState(false);
+
   const emojiview = () => {
     setSelfieButton(false);
     setVideoButton(false);
@@ -134,14 +198,7 @@ const Status = () => {
     setVisualisationSelfieVideo(false);
     setVisualisationEmojiMobile(false);
   };
-  //handle emoji click pour sms
-  const [selectedEmoji, setSelectedEmoji] = useState(null);
-  const handleEmojiSelect = (emoji) => {
-    setSelectedEmoji(emoji);
-  };
-  //visualisation couleur de texte
-  const [visualisationColorText, setVisualisationColorText] = useState(false);
-  const [colorText, setcolorText] = useState("black");
+
   const colorTextview = () => {
     setVisualisationColorText((prev) => !prev);
     setVisualisationAudio(false);
@@ -157,15 +214,15 @@ const Status = () => {
     setVisualisationSelfieVideo(false);
     setVisualisationEmojiMobile(false);
   };
+
   const ChangeColorText = (e) => {
     setcolorText(e);
   };
-  //visualisation changer background
-  const [visualisationBgText, setVisualisationBgText] = useState(false);
-  const [bgtext, setbgtext] = useState("");
+
   const Changebg = (e) => {
     setbgtext(e);
   };
+
   const bgtextview = () => {
     setVisualisationBgText((prev) => !prev);
     setVisualisationAudio(false);
@@ -181,12 +238,11 @@ const Status = () => {
     setVisualisationEmojiMobile(false);
     setVisualisationFiltre(false);
   };
-  //visualisation taille texte
-  const [visualisationTailleText, setVisualisationTailleText] = useState(false);
-  const [taille, setTaille] = useState("14px");
+
   const ChangeTailleText = (e) => {
     setTaille(e);
   };
+
   const tailleview = () => {
     setVisualisationTailleText((prev) => !prev);
     setVisualisationAudio(false);
@@ -202,12 +258,11 @@ const Status = () => {
     setVisualisationEmojiMobile(false);
     setVisualisationFiltre(false);
   };
-  //visualisation filtre
-  const [visualisationFiltre, setVisualisationFiltre] = useState(false);
-  const [filterPhoto, setFilterPhoto] = useState("none");
+
   const ChangeFilter = (e) => {
     setFilterPhoto(e);
   };
+
   const filtreview = () => {
     setVisualisationFiltre(true);
     setVisualisationAudio(false);
@@ -223,12 +278,7 @@ const Status = () => {
     setVisualisationSelfieVideo(false);
     setVisualisationEmojiMobile(false);
   };
-  //visualisation font
-  const [visualisationFont, setVisualisationFont] = useState(false);
-  const [font, setFont] = useState("roboto");
-  const ChangeFontText = (e) => {
-    setFont(e);
-  };
+
   const familyview = () => {
     setVisualisationFont((prev) => !prev);
     setVisualisationAudio(false);
@@ -244,8 +294,7 @@ const Status = () => {
     setVisualisationEmojiMobile(false);
     setVisualisationFiltre(false);
   };
-  //visualisation selfie
-  const [visualisationSelfie, setVisualisationSelfie] = useState(false);
+
   const Selfieview = () => {
     setVisualisationSelfie(true);
     setVisualisationAudio(false);
@@ -261,11 +310,7 @@ const Status = () => {
     setVisualisationFiltre(false);
     setVisualisationFont(false);
   };
-  //visualisation emoji mobile
-  const [isMobileEmojiMode, setIsMobileEmojiMode] = useState(false);
-  const [mobileEmojis, setMobileEmojis] = useState([]);
-  const [visualisationEmojiMobile, setVisualisationEmojiMobile] =
-    useState(false);
+
   const emojimobileview = () => {
     setVisualisationEmojiMobile((prev) => !prev);
     setIsMobileEmojiMode(true);
@@ -282,37 +327,28 @@ const Status = () => {
     setVisualisationFiltre(false);
     setVisualisationFont(false);
   };
+
   const addMobileEmoji = (emoji) => {
-    setMobileEmojis([
-      ...mobileEmojis,
-      // Un ID généré à partir de la date actuelle (Date.now())
-      { id: Date.now(), emoji, x: 0, y: 0 },
-    ]);
+    setMobileEmojis([...mobileEmojis, { id: Date.now(), emoji, x: 0, y: 0 }]);
   };
+
   const moveMobileEmoji = (id, newX, newY) => {
-    //deplacement des emojis
     setMobileEmojis(
       mobileEmojis.map((emoji) =>
-        //verification de id de l'emoji
-        emoji.id === id
-          ? //si l'id de l'emoji est égale à l'id de l'emoji déplacé alors on met à jour la position de l'emoji
-            { ...emoji, x: newX, y: newY }
-          : //sinon on retourne l'emoji
-            emoji
+        emoji.id === id ? { ...emoji, x: newX, y: newY } : emoji
       )
     );
   };
+
   const deleteMobileEmoji = (id) => {
-    //suppression des emojis
     setMobileEmojis(mobileEmojis.filter((emoji) => emoji.id !== id));
   };
+
   const handleMobileEmojiClick = (emoji) => {
     setVisualisationEmojiMobile(true);
     addMobileEmoji(emoji);
   };
-  //visualisation selfie video
-  const [visualisationSelfieVideo, setVisualisationSelfieVideo] =
-    useState(false);
+
   const SelfieVideoview = () => {
     setVisualisationSelfieVideo(true);
     setVisualisationAudio(false);
@@ -328,10 +364,7 @@ const Status = () => {
     setVisualisationFont(false);
     setVisualisationEmojiMobile(false);
   };
-  //visualisation photo
-  const refphotos = useRef(null);
-  const [showPhoto, setShowPhoto] = useState(null);
-  const [visualisationPhoto, setVisualisationPhoto] = useState(false);
+
   const photoview = () => {
     setVisualisationPhoto(true);
     setVisualisationAudio(false);
@@ -347,9 +380,11 @@ const Status = () => {
     setVisualisationFont(false);
     setVisualisationSelfieVideo(false);
   };
+
   const SelectPhoto = () => {
     refphotos.current.click();
   };
+
   const ChangePicture = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -364,10 +399,7 @@ const Status = () => {
       }
     }
   };
-  //visualisation video
-  const refvideo = useRef(null);
-  const [showVideo, setShowVideo] = useState(null);
-  const [visualisationVideo, setVisualisationVideo] = useState(false);
+
   const videoview = () => {
     setVisualisationPhoto(false);
     setVisualisationAudio(false);
@@ -387,6 +419,7 @@ const Status = () => {
   const SelectVideo = () => {
     refvideo.current.click();
   };
+
   const ChangeVideo = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -396,71 +429,144 @@ const Status = () => {
           setShowVideo(read.result);
         };
         read.readAsDataURL(file);
-        /*  const read = URL.createObjectURL(file); //pour lire le fichier video en creant une url temporaire
-        setShowVideo(read);*/
       } else {
         alert("la taille de l'image est trop grande");
         setShowVideo(null);
       }
     }
   };
-  //close page
-  const [closePrincipal, setClosePrincipal] = useState(false);
+
   const onclosed = () => {
     setCreateStatut(!createStatut);
     setClosePrincipal(!closePrincipal);
   };
 
-  // Fonction pour ajouter un statut
   const addStatus = (status) => {
     setStatuts([...statuts, status]);
   };
 
-  // Fonction pour supprimer un statut
-  const deleteStatus = (index) => {
-    const updatedStatuts = statuts.filter((_, i) => i !== index);
-    setStatuts(updatedStatuts);
+  const deleteStatus = async (statusId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/status/${statusId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la suppression du statut");
+      }
+
+      setStatuts((prevStatuts) =>
+        prevStatuts.filter((status) => status.id_status !== statusId)
+      );
+
+      if (
+        selectedUser &&
+        selectedUser.statuses[currentStatusIndex]?.id_status === statusId
+      ) {
+        closeStatusViewer();
+      }
+
+      console.log("Statut supprimé avec succès");
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+    }
   };
 
-  // Nouveaux états pour les statuts
-  const [users, setUsers] = useState(mockUsers);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [currentStatusIndex, setCurrentStatusIndex] = useState(0);
-  const [isViewingStatus, setIsViewingStatus] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentFilter, setCurrentFilter] = useState("none");
-  const [audioProgress, setAudioProgress] = useState(0);
-  const [audioDuration, setAudioDuration] = useState(0);
+  const fetchUserStatuses = async () => {
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData) return;
 
-  // Références
-  const progressRef = useRef(null);
-  const audioRef = useRef(null);
-  const statusTimerRef = useRef(null);
+      const response = await fetch("http://localhost:5000/api/status", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-  // Fonction pour formater le temps
-  const formatTime = (date) => {
-    const now = new Date();
-    const diff = now - date;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des statuts");
+      }
 
-    if (minutes < 60) return `${minutes}m`;
-    if (hours < 24) return `${hours}h`;
-    return `${days}j`;
+      const data = await response.json();
+      const userStatuses = data.filter(
+        (status) => status.id_utilisateur === userData.id_utilisateur
+      );
+      setStatuts(userStatuses);
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
   };
 
-  // Gestion de la visualisation des statuts
-  const startStatusView = (user, index = 0) => {
-    setSelectedUser(user);
-    setCurrentStatusIndex(index);
+  const checkExpiredStatuses = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/status", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la récupération des statuts");
+      }
+
+      const data = await response.json();
+      const now = new Date();
+
+      const activeStatuses = data.filter((status) => {
+        const statusDate = new Date(status.date_creation);
+        const hoursDiff = (now - statusDate) / (1000 * 60 * 60);
+        return hoursDiff < 24;
+      });
+
+      setStatuts(activeStatuses);
+    } catch (error) {
+      console.error("Erreur lors de la vérification des statuts:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserStatuses();
+    const interval = setInterval(() => {
+      checkExpiredStatuses();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const openStatusViewer = (status) => {
+    if (!status) return;
+
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData) return;
+
+    const sortedStatuses = [...statuts].sort(
+      (a, b) => new Date(b.date_creation) - new Date(a.date_creation)
+    );
+
+    const currentIndex = sortedStatuses.findIndex(
+      (s) => s.id_status === status.id_status
+    );
+
+    const viewerData = {
+      id: userData.id_utilisateur,
+      name: userData.name_utilisateur,
+      photo: userData.photo_profil || nomane,
+      statuses: sortedStatuses,
+    };
+
+    setSelectedUser(viewerData);
+    setCurrentStatusIndex(currentIndex);
     setIsViewingStatus(true);
     setProgress(0);
     setIsPlaying(true);
   };
 
-  const closeStatusView = () => {
+  const closeStatusViewer = () => {
     setIsViewingStatus(false);
     setSelectedUser(null);
     setCurrentStatusIndex(0);
@@ -471,7 +577,6 @@ const Status = () => {
     }
   };
 
-  // Gestion de la progression des statuts
   useEffect(() => {
     if (isViewingStatus && isPlaying) {
       statusTimerRef.current = setInterval(() => {
@@ -483,22 +588,21 @@ const Status = () => {
           }
           return prev + 1;
         });
-      }, 50); // 5 secondes pour un statut
+      }, 50);
     }
     return () => {
       if (statusTimerRef.current) {
         clearInterval(statusTimerRef.current);
       }
     };
-  }, [isViewingStatus, isPlaying]);
+  }, [isViewingStatus, isPlaying, currentStatusIndex]);
 
-  // Navigation entre les statuts
   const nextStatus = () => {
     if (selectedUser && currentStatusIndex < selectedUser.statuses.length - 1) {
       setCurrentStatusIndex((prev) => prev + 1);
       setProgress(0);
     } else {
-      closeStatusView();
+      closeStatusViewer();
     }
   };
 
@@ -509,7 +613,6 @@ const Status = () => {
     }
   };
 
-  // Gestion des messages vocaux
   const handleAudioLoad = (e) => {
     setAudioDuration(e.target.duration);
   };
@@ -529,29 +632,29 @@ const Status = () => {
     }
   };
 
-  // Gestion des filtres
   const applyFilter = (filter) => {
     setCurrentFilter(filter);
   };
 
-  // Marquage des statuts comme vus
   const markStatusAsViewed = (userId, statusId) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) => {
-        if (user.id === userId) {
-          return {
-            ...user,
-            statuses: user.statuses.map((status) =>
-              status.id === statusId ? { ...status, viewed: true } : status
-            ),
-          };
-        }
-        return user;
-      })
+    setStatuts((prevStatuts) =>
+      prevStatuts.map((status) =>
+        status.id === statusId ? { ...status, viewed: true } : status
+      )
     );
   };
 
-  // Rendu des cercles de statut
+  const calculateStatusSegments = (statuses) => {
+    const totalDuration = statuses.reduce(
+      (acc, status) => acc + status.duration,
+      0
+    );
+    return statuses.map((status) => ({
+      ...status,
+      segmentPercentage: (status.duration / totalDuration) * 100,
+    }));
+  };
+
   const renderStatusCircle = (user) => {
     const unviewedCount = user.statuses.filter(
       (status) => !status.viewed
@@ -572,7 +675,6 @@ const Status = () => {
   };
 
   const handleAudioSave = (audioData) => {
-    // Ajouter le nouveau statut audio à la liste des statuts
     setStatuts((prevStatuses) => [
       ...prevStatuses,
       {
@@ -585,24 +687,212 @@ const Status = () => {
     ]);
   };
 
+  const resetAllOptions = () => {
+    setVisualisationTexte(false);
+    setVisualisationAudio(false);
+    setVisualisationPhoto(false);
+    setVisualisationVideo(false);
+    setVisualisationSelfie(false);
+    setVisualisationEmoji(false);
+    setVisualisationColorText(false);
+    setVisualisationBgText(false);
+    setVisualisationTailleText(false);
+    setVisualisationFont(false);
+    setVisualisationFiltre(false);
+    setVisualisationEmojiMobile(false);
+    setVisualisationSelfieVideo(false);
+    setSelectedEmoji(null);
+    setcolorText("black");
+    setbgtext("");
+    setTaille("14px");
+    setFont("roboto");
+    setFilterPhoto("none");
+    setMobileEmojis([]);
+    setShowPhoto(null);
+    setShowVideo(null);
+    setPublication(false);
+    setMenuaction(true);
+    setSelfieButton(true);
+    setVideoButton(true);
+    setFiltreButton(true);
+    setColorButton(true);
+    setEmojiButton(true);
+    setBgButton(true);
+    setSizeButton(true);
+    setStyleButton(true);
+  };
+
+  const handlePublish = async () => {
+    try {
+      console.log("Début de handlePublish");
+      let statutData = {
+        type: "",
+        content: "",
+        texte: "",
+        styles: {},
+      };
+
+      console.log("État actuel:", {
+        visualisationPhoto,
+        showPhoto,
+        visualisationVideo,
+        showVideo,
+        visualisationAudio,
+        visualisationTexte,
+        colorText,
+        bgtext,
+        taille,
+        font,
+        mobileEmojis,
+      });
+
+      if (visualisationPhoto && showPhoto) {
+        console.log("Création d'un statut image");
+        statutData = {
+          type: "image",
+          content: showPhoto,
+          texte: "",
+          styles: {},
+        };
+      } else if (visualisationVideo && showVideo) {
+        console.log("Création d'un statut vidéo");
+        statutData = {
+          type: "video",
+          content: showVideo,
+          texte: "",
+          styles: {},
+        };
+      } else if (visualisationAudio) {
+        console.log("Création d'un statut audio");
+        const audioData = localStorage.getItem("lastAudioRecording");
+        if (audioData) {
+          statutData = {
+            type: "audio",
+            content: audioData,
+            texte: "",
+            styles: {},
+          };
+        }
+      } else if (visualisationTexte) {
+        console.log("Création d'un statut texte");
+        const texteContent =
+          document.querySelector(".WriteSmsCall textarea")?.value || "";
+        console.log("Contenu du texte:", texteContent);
+        statutData = {
+          type: "texte",
+          content: "",
+          texte: texteContent,
+          styles: {
+            color: colorText,
+            backgroundColor: bgtext,
+            fontSize: taille,
+            fontFamily: font,
+            emojis: mobileEmojis,
+          },
+        };
+      }
+
+      console.log("Données du statut à envoyer:", statutData);
+
+      const response = await fetch("http://localhost:5000/api/status", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(statutData),
+      });
+
+      console.log("Réponse du serveur:", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Erreur détaillée:", errorData);
+        throw new Error("Erreur lors de la publication du statut");
+      }
+
+      const responseData = await response.json();
+      console.log("Statut publié avec succès:", responseData);
+
+      resetAllOptions();
+      setCreateStatut(true);
+      setClosePrincipal(false);
+
+      await fetchUserStatuses();
+    } catch (error) {
+      console.error("Erreur complète lors de la publication:", error);
+    }
+  };
+
+  const handleEmojiSelect = (emoji) => {
+    setSelectedEmoji(emoji);
+  };
+
+  const ChangeFontText = (font) => {
+    setFont(font);
+  };
+
+  const handleChoice = () => {
+    setButtonClick(!ButtonClick);
+    setSelectionButton(!SelectionButton);
+    setSeeButton(!SeeButton);
+  };
+
   return (
     <div className="StatusHome">
       <div className="StatusHomeLeft">
         <div className="StatutOwn">
           <p id="Appel">Statut</p>
-
           <div className="StatusContact">
-            <div className="StatusContactImg">
-              <img src={nomane} alt="" />
-              <h2></h2>
+            <div
+              className="StatusContactImg"
+              onClick={() => {
+                if (statuts && statuts.length > 0) {
+                  const sortedStatuses = [...statuts].sort(
+                    (a, b) =>
+                      new Date(b.date_creation) - new Date(a.date_creation)
+                  );
+                  openStatusViewer(sortedStatuses[0]);
+                }
+              }}
+              style={{
+                cursor: "pointer",
+                position: "relative",
+                width: "60px",
+                height: "60px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <StatusCircle numStatuses={statuts.length} />
+              <img
+                src={
+                  JSON.parse(localStorage.getItem("userData"))?.photo_profil ||
+                  nomane
+                }
+                alt="Photo de profil"
+                style={{
+                  width: "90%",
+                  height: "90%",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  position: "relative",
+                  zIndex: 1,
+                }}
+              />
             </div>
             <div className="StatusName">
               <p>Mes statuts</p>
+              {statuts && statuts.length > 0 && (
+                <p>{formatTime(new Date(statuts[0].date_creation))}</p>
+              )}
             </div>
           </div>
           <span
             className="ButtonMenu"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setCreateStatut(!createStatut);
               setClosePrincipal(true);
             }}
@@ -612,18 +902,13 @@ const Status = () => {
         </div>
         <div className="StatusOther">
           <p style={{ marginLeft: "10px" }}>Mises à jour récentes</p>
-          <div
-            className={`StatusContact ${selection ? "StatusSelect" : ""}`}
-            onClick={() => setselection(!selection)}
-          >
+          <div className="StatusContact">
             <div className="StatusContactImg">
-              <img src={nomane} alt="" />
+              <img src={nomane} alt="Photo par défaut" />
             </div>
             <div className="StatusName">
               <p>Statut des autres</p>
-              <p>
-                Aujourd'hui,<span> 12:00</span>
-              </p>
+              <p>Aucun statut récent</p>
             </div>
           </div>
         </div>
@@ -632,13 +917,11 @@ const Status = () => {
           <span>statut déjà vus</span>
           <div className="StatusContact">
             <div className="StatusContactImg">
-              <img src={nomane} alt="" />
+              <img src={nomane} alt="Photo par défaut" />
             </div>
             <div className="StatusName">
-              <p>Mon statut</p>
-              <p>
-                hier,<span> 12:00</span>
-              </p>
+              <p>Statuts vus</p>
+              <p>Aucun statut vu</p>
             </div>
           </div>
         </div>
@@ -650,7 +933,11 @@ const Status = () => {
           closePrincipal && (
             <>
               <div className="CreateStatus">
-                {publication && <button id="publish">Publier</button>}
+                {publication && (
+                  <button id="publish" onClick={handlePublish}>
+                    Publier
+                  </button>
+                )}
                 <div className="CallHomeButton">
                   <p>
                     <span className="ButtonMenu">
@@ -665,7 +952,7 @@ const Status = () => {
                         <span
                           className={`ButtonMenu ${
                             ButtonClick ? "activeMenu" : ""
-                          }  `}
+                          }`}
                           onClick={() => handleChoice()}
                         >
                           {SelectionButton ? (
@@ -768,11 +1055,11 @@ const Status = () => {
                         selectedEmoji={selectedEmoji}
                         colorText={colorText}
                         bgtext={bgtext}
-                        taille={taille} //premier props et deuxieme usestate
+                        taille={taille}
                         font={font}
-                        mobileEmojis={mobileEmojis} // Passez les emojis mobiles au composant Sms
-                        onMoveEmoji={moveMobileEmoji} // Passez la fonction de déplacement
-                        onDeleteEmoji={deleteMobileEmoji} // Passez la fonction de suppression
+                        mobileEmojis={mobileEmojis}
+                        onMoveEmoji={moveMobileEmoji}
+                        onDeleteEmoji={deleteMobileEmoji}
                         publication={publication}
                         isMobileEmojiMode={isMobileEmojiMode}
                         setPublication={setPublication}
@@ -794,18 +1081,16 @@ const Status = () => {
                           key={emoji.id}
                           style={{
                             position: "absolute",
-                            left: emoji.x, //position de l'emoji horizontale
-                            top: emoji.y, //position de l'emoji verticale
-                            fontSize: "24px", //taille de l'emoji
-                            cursor: "move", //curseur indiquant que l'emoji est déplaçable
+                            left: emoji.x,
+                            top: emoji.y,
+                            fontSize: "24px",
+                            cursor: "move",
                           }}
-                          draggable //rendre l'emoji déplaçable
+                          draggable
                           onDragEnd={(e) => {
-                            // fonction de déplacement de l'emoji
-                            //calcul de la nouvelle position de l'emoji
                             const newX = e.clientX - e.target.offsetWidth / 2;
                             const newY = e.clientY - e.target.offsetHeight / 2;
-                            moveMobileEmoji(emoji.id, newX, newY); //fonction de mise à jour de la position de l'emoji
+                            moveMobileEmoji(emoji.id, newX, newY);
                           }}
                         >
                           {emoji.emoji}
@@ -937,6 +1222,262 @@ const Status = () => {
           )
         )}
       </div>
+      {isViewingStatus &&
+        selectedUser &&
+        selectedUser.statuses &&
+        selectedUser.statuses.length > 0 && (
+          <div
+            className="status-viewer-overlay"
+            onClick={closeStatusViewer}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(0, 0, 0, 0.9)",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 1000,
+            }}
+          >
+            <div
+              className="status-viewer"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: "90%",
+                maxWidth: "500px",
+                backgroundColor: "#000",
+                borderRadius: "10px",
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  padding: "10px",
+                  gap: "2px",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  zIndex: 2,
+                }}
+              >
+                {selectedUser.statuses.map((_, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      flex: 1,
+                      height: "3px",
+                      backgroundColor: "rgba(255, 255, 255, 0.3)",
+                      borderRadius: "3px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width:
+                          index === currentStatusIndex
+                            ? `${progress}%`
+                            : index < currentStatusIndex
+                            ? "100%"
+                            : "0%",
+                        height: "100%",
+                        backgroundColor: "white",
+                        transition: "width 0.1s linear",
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div
+                className="status-viewer-header"
+                style={{ marginTop: "20px" }}
+              >
+                <img
+                  src={selectedUser.photo}
+                  alt={selectedUser.name}
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "50%",
+                    marginRight: "10px",
+                  }}
+                />
+                <span style={{ color: "white" }}>{selectedUser.name}</span>
+                <span className="status-time">
+                  {formatTime(
+                    new Date(
+                      selectedUser.statuses[currentStatusIndex].date_creation
+                    )
+                  )}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (
+                      window.confirm(
+                        "Voulez-vous vraiment supprimer ce statut ?"
+                      )
+                    ) {
+                      deleteStatus(
+                        selectedUser.statuses[currentStatusIndex].id_status
+                      );
+                    }
+                  }}
+                  style={{
+                    marginLeft: "auto",
+                    background: "rgba(255, 0, 0, 0.5)",
+                    border: "none",
+                    color: "white",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Supprimer
+                </button>
+              </div>
+              <div
+                className="status-viewer-content"
+                style={{
+                  width: "100%",
+                  height: "calc(100vh - 100px)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  backgroundColor: "#000",
+                  position: "relative",
+                }}
+              >
+                {currentStatusIndex > 0 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      previousStatus();
+                    }}
+                    style={{
+                      position: "absolute",
+                      left: "10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "rgba(0, 0, 0, 0.5)",
+                      border: "none",
+                      color: "white",
+                      padding: "10px",
+                      cursor: "pointer",
+                      borderRadius: "50%",
+                    }}
+                  >
+                    ←
+                  </button>
+                )}
+                {currentStatusIndex < selectedUser.statuses.length - 1 && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextStatus();
+                    }}
+                    style={{
+                      position: "absolute",
+                      right: "10px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      background: "rgba(0, 0, 0, 0.5)",
+                      border: "none",
+                      color: "white",
+                      padding: "10px",
+                      cursor: "pointer",
+                      borderRadius: "50%",
+                    }}
+                  >
+                    →
+                  </button>
+                )}
+                {selectedUser.statuses[currentStatusIndex].type === "image" && (
+                  <img
+                    src={selectedUser.statuses[currentStatusIndex].content}
+                    alt="Status"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
+                {selectedUser.statuses[currentStatusIndex].type === "video" && (
+                  <video
+                    src={selectedUser.statuses[currentStatusIndex].content}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                )}
+                {selectedUser.statuses[currentStatusIndex].type === "audio" && (
+                  <audio
+                    src={selectedUser.statuses[currentStatusIndex].content}
+                    controls
+                    autoPlay
+                    style={{
+                      width: "100%",
+                      padding: "20px",
+                    }}
+                  />
+                )}
+                {selectedUser.statuses[currentStatusIndex].type === "texte" && (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      padding: "20px",
+                      backgroundColor:
+                        selectedUser.statuses[currentStatusIndex].styles
+                          ?.backgroundColor || "transparent",
+                    }}
+                  >
+                    <p
+                      style={{
+                        color:
+                          selectedUser.statuses[currentStatusIndex].styles
+                            ?.color || "white",
+                        fontSize:
+                          selectedUser.statuses[currentStatusIndex].styles
+                            ?.fontSize || "18px",
+                        fontFamily:
+                          selectedUser.statuses[currentStatusIndex].styles
+                            ?.fontFamily || "roboto",
+                        textAlign: "center",
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                      }}
+                    >
+                      {selectedUser.statuses[currentStatusIndex].texte}
+                      {selectedUser.statuses[
+                        currentStatusIndex
+                      ].styles?.emojis?.map((emoji, index) => (
+                        <span key={index} style={{ marginLeft: "5px" }}>
+                          {emoji}
+                        </span>
+                      ))}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 };

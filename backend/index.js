@@ -10,6 +10,8 @@ const groupRoutes = require("./routes/groupRoutes"); // Ajout des routes de grou
 const publicationRoutes = require("./routes/PublicationRoute");
 const path = require("path");
 const fs = require("fs");
+const statusRoutes = require("./routes/StatusRoute");
+const { Status } = require("./models"); // Import des modèles
 
 // Vérification des variables d'environnement
 console.log("🔍 Vérification des variables d'environnement...");
@@ -60,6 +62,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes); // Ajout des routes de messages
 app.use("/api/groups", groupRoutes); // Ajout des routes de groupes
 app.use("/api/publications", publicationRoutes);
+app.use("/api/status", statusRoutes);
 
 // Middleware pour gérer les erreurs
 app.use((err, req, res, next) => {
@@ -99,6 +102,18 @@ io.on("connection", (socket) => {
     console.log("Un utilisateur s'est déconnecté:", socket.id);
   });
 });
+
+// Synchroniser la base de données avec les modèles
+db.sync({ alter: true })
+  .then(() => {
+    console.log("✅ Base de données synchronisée avec succès");
+  })
+  .catch((err) => {
+    console.error(
+      "❌ Erreur lors de la synchronisation de la base de données:",
+      err
+    );
+  });
 
 // ---------------- Lancement du Serveur ----------------
 const PORT = process.env.PORT || 5000;
