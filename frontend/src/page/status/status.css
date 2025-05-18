@@ -129,6 +129,7 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: gainsboro white;
+  margin-bottom: 15%;
 }
 .WriteSmsCall span {
   width: 10%;
