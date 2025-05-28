@@ -26,7 +26,7 @@ const Status = sequelize.define(
       },
     },
     content: {
-      type: DataTypes.TEXT,
+      type: DataTypes.TEXT("LONG"),
       allowNull: true,
     },
     texte: {

@@ -122,7 +122,7 @@ const Status = () => {
   const refphotos = useRef(null);
   const [showPhoto, setShowPhoto] = useState(null);
   const [visualisationPhoto, setVisualisationPhoto] = useState(false);
-  const [refvideo, setRefvideo] = useState(null);
+  const refvideo = useRef(null);
   const [showVideo, setShowVideo] = useState(null);
   const [visualisationVideo, setVisualisationVideo] = useState(false);
   const [closePrincipal, setClosePrincipal] = useState(false);
@@ -436,38 +436,61 @@ const Status = () => {
   };
 
   const videoview = () => {
-    setVisualisationPhoto(false);
-    setVisualisationAudio(false);
-    setVisualisationTexte(false);
-    setVisualisationEmoji(false);
+    console.log("Activation de la vue vidéo");
     setVisualisationVideo(true);
-    setVisualisationSelfie(false);
-    setVisualisationEmojiMobile(false);
-    setVisualisationColorText(false);
-    setVisualisationBgText(false);
-    setVisualisationTailleText(false);
     setVisualisationFiltre(false);
     setVisualisationFont(false);
     setVisualisationSelfieVideo(false);
+    setStyleButton(false);
+    setSizeButton(false);
+    setFiltreButton(false);
+    setBgButton(false);
+    setColorButton(false);
+    setSelfieButton(false);
+    setVideoButton(false);
+    setEmojiButton(false);
+    setMenuaction(false);
   };
 
   const SelectVideo = () => {
-    refvideo.current.click();
+    console.log("Sélection de vidéo déclenchée");
+    if (refvideo.current) {
+      refvideo.current.click();
+    } else {
+      console.error("Référence à l'input file non trouvée");
+    }
   };
 
   const ChangeVideo = (e) => {
+    console.log("ChangeVideo appelé");
     const file = e.target.files[0];
     if (file) {
+      console.log("Fichier vidéo sélectionné:", {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      });
+
       if (file.size <= 35 * 1024 * 1024) {
         const read = new FileReader();
         read.onloadend = () => {
+          console.log("Vidéo chargée avec succès");
           setShowVideo(read.result);
+          setPublication(true);
+        };
+        read.onerror = (error) => {
+          console.error("Erreur lors de la lecture du fichier:", error);
+          alert("Erreur lors de la lecture de la vidéo");
         };
         read.readAsDataURL(file);
       } else {
-        alert("la taille de l'image est trop grande");
+        console.error("Vidéo trop grande:", file.size);
+        alert("La taille de la vidéo est trop grande (max 35MB)");
         setShowVideo(null);
       }
+    } else {
+      console.log("Aucun fichier sélectionné dans ChangeVideo");
+      setShowVideo(null);
     }
   };
 
@@ -515,8 +538,12 @@ const Status = () => {
 
   const fetchUserStatuses = async () => {
     try {
+      console.log("Début de fetchUserStatuses");
       const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData) return;
+      if (!userData) {
+        console.error("Aucun utilisateur connecté");
+        return;
+      }
 
       const response = await fetch("http://localhost:5000/api/status", {
         headers: {
@@ -529,12 +556,22 @@ const Status = () => {
       }
 
       const data = await response.json();
+      console.log("Statuts reçus du serveur:", data.length);
+
       const userStatuses = data.filter(
         (status) => status.id_utilisateur === userData.id_utilisateur
       );
+      console.log("Statuts filtrés pour l'utilisateur:", userStatuses.length);
+
+      // Vérifier les statuts vidéo
+      const videoStatuses = userStatuses.filter(
+        (status) => status.type === "video"
+      );
+      console.log("Statuts vidéo trouvés:", videoStatuses.length);
+
       setStatuts(userStatuses);
     } catch (error) {
-      console.error("Erreur:", error);
+      console.error("Erreur lors de la récupération des statuts:", error);
     }
   };
 
@@ -579,6 +616,12 @@ const Status = () => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     if (!userData) return;
 
+    console.log("Ouverture du viewer pour le statut:", {
+      id: status.id_status,
+      type: status.type,
+      contentLength: status.content?.length,
+    });
+
     const sortedStatuses = [...statuts].sort(
       (a, b) => new Date(b.date_creation) - new Date(a.date_creation)
     );
@@ -586,6 +629,8 @@ const Status = () => {
     const currentIndex = sortedStatuses.findIndex(
       (s) => s.id_status === status.id_status
     );
+
+    console.log("Index du statut dans la liste triée:", currentIndex);
 
     const viewerData = {
       id: userData.id_utilisateur,
@@ -613,7 +658,11 @@ const Status = () => {
   };
 
   useEffect(() => {
-    if (isViewingStatus && isPlaying) {
+    if (
+      isViewingStatus &&
+      isPlaying &&
+      selectedUser?.statuses[currentStatusIndex]?.type !== "video"
+    ) {
       statusTimerRef.current = setInterval(() => {
         setProgress((prev) => {
           if (prev >= 100) {
@@ -630,7 +679,12 @@ const Status = () => {
         clearInterval(statusTimerRef.current);
       }
     };
-  }, [isViewingStatus, isPlaying, currentStatusIndex]);
+  }, [
+    isViewingStatus,
+    isPlaying,
+    currentStatusIndex,
+    selectedUser?.statuses[currentStatusIndex]?.type,
+  ]);
 
   const nextStatus = () => {
     if (selectedUser && currentStatusIndex < selectedUser.statuses.length - 1) {
@@ -771,7 +825,7 @@ const Status = () => {
         visualisationPhoto,
         showPhoto: showPhoto ? "Photo présente" : "Pas de photo",
         visualisationVideo,
-        showVideo,
+        showVideo: showVideo ? "Vidéo présente" : "Pas de vidéo",
         visualisationAudio,
         visualisationTexte,
         colorText,
@@ -794,13 +848,19 @@ const Status = () => {
       } else if (visualisationPhoto && !showPhoto) {
         throw new Error("Aucune photo sélectionnée");
       } else if (visualisationVideo && showVideo) {
-        console.log("Création d'un statut vidéo");
+        console.log("Création d'un statut vidéo avec contenu:", {
+          type: "video",
+          contentLength: showVideo.length,
+          contentType: typeof showVideo,
+        });
         statutData = {
           type: "video",
           content: showVideo,
           texte: "",
           styles: {},
         };
+      } else if (visualisationVideo && !showVideo) {
+        throw new Error("Aucune vidéo sélectionnée");
       } else if (visualisationAudio) {
         console.log("Création d'un statut audio");
         const audioData = localStorage.getItem("lastAudioRecording");
@@ -831,7 +891,11 @@ const Status = () => {
         };
       }
 
-      console.log("Données du statut à envoyer:", statutData);
+      console.log("Données du statut à envoyer:", {
+        type: statutData.type,
+        contentLength: statutData.content?.length || 0,
+        texte: statutData.texte,
+      });
 
       const response = await fetch("http://localhost:5000/api/status", {
         method: "POST",
@@ -853,13 +917,16 @@ const Status = () => {
       const responseData = await response.json();
       console.log("Statut publié avec succès:", responseData);
 
+      // Vérifier que le statut a été ajouté à la liste
+      await fetchUserStatuses();
+      console.log("Statuts mis à jour après publication");
+
       resetAllOptions();
       setCreateStatut(true);
       setClosePrincipal(false);
-
-      await fetchUserStatuses();
     } catch (error) {
       console.error("Erreur complète lors de la publication:", error);
+      alert(error.message || "Erreur lors de la publication du statut");
     }
   };
 
@@ -1162,6 +1229,7 @@ const Status = () => {
                     <Video
                       showVideo={showVideo}
                       setPublication={setPublication}
+                      onVideoSelect={SelectVideo}
                     />
                   )}
                   {visualisationSelfie && (
@@ -1222,15 +1290,12 @@ const Status = () => {
                         />
                         <input
                           type="file"
-                          name=""
-                          id=""
                           accept="video/*"
                           style={{ display: "none" }}
                           onChange={ChangeVideo}
                           ref={refvideo}
                         />
                       </span>
-
                       <label>selectionner une vidéo</label>
                     </p>
                     <p>
@@ -1460,18 +1525,61 @@ const Status = () => {
                   />
                 )}
                 {selectedUser.statuses[currentStatusIndex].type === "video" && (
-                  <video
-                    src={selectedUser.statuses[currentStatusIndex].content}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
+                  <div
                     style={{
-                      maxWidth: "100%",
-                      maxHeight: "100%",
-                      objectFit: "contain",
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
-                  />
+                  >
+                    <video
+                      key={selectedUser.statuses[currentStatusIndex].id_status}
+                      src={selectedUser.statuses[currentStatusIndex].content}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      controls
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                        objectFit: "contain",
+                      }}
+                      onTimeUpdate={(e) => {
+                        const video = e.target;
+                        const progress =
+                          (video.currentTime / video.duration) * 100;
+                        setProgress(progress);
+                      }}
+                      onEnded={() => {
+                        nextStatus();
+                      }}
+                      onError={(e) => {
+                        console.error("Erreur de chargement de la vidéo:", {
+                          error: e,
+                          videoSrc:
+                            selectedUser.statuses[
+                              currentStatusIndex
+                            ].content?.substring(0, 50) + "...",
+                          statusId:
+                            selectedUser.statuses[currentStatusIndex].id_status,
+                        });
+                      }}
+                      onLoadedData={(e) => {
+                        console.log("Vidéo chargée avec succès:", {
+                          statusId:
+                            selectedUser.statuses[currentStatusIndex].id_status,
+                          type: selectedUser.statuses[currentStatusIndex].type,
+                          contentLength:
+                            selectedUser.statuses[currentStatusIndex].content
+                              ?.length,
+                          duration: e.target.duration,
+                        });
+                      }}
+                    />
+                  </div>
                 )}
                 {selectedUser.statuses[currentStatusIndex].type === "audio" && (
                   <audio
