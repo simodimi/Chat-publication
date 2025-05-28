@@ -119,7 +119,7 @@ const Status = () => {
     useState(false);
   const [visualisationSelfieVideo, setVisualisationSelfieVideo] =
     useState(false);
-  const [refphotos, setRefphotos] = useState(null);
+  const refphotos = useRef(null);
   const [showPhoto, setShowPhoto] = useState(null);
   const [visualisationPhoto, setVisualisationPhoto] = useState(false);
   const [refvideo, setRefvideo] = useState(null);
@@ -183,6 +183,7 @@ const Status = () => {
     setSelfieButton(false);
     setVideoButton(false);
     setFiltreButton(false);
+    setVisualisationTexte(true);
     setVisualisationEmoji(!visualisationEmoji);
     setIsMobileEmojiMode(false);
     setVisualisationAudio(false);
@@ -366,6 +367,7 @@ const Status = () => {
   };
 
   const photoview = () => {
+    console.log("Activation de la vue photo");
     setVisualisationPhoto(true);
     setVisualisationAudio(false);
     setVisualisationTexte(false);
@@ -379,24 +381,57 @@ const Status = () => {
     setVisualisationFiltre(false);
     setVisualisationFont(false);
     setVisualisationSelfieVideo(false);
+    setStyleButton(false);
+    setSizeButton(false);
+    setFiltreButton(true);
+    setBgButton(false);
+    setColorButton(false);
+    setSelfieButton(false);
+    setVideoButton(false);
   };
 
   const SelectPhoto = () => {
-    refphotos.current.click();
+    console.log("Sélection de photo déclenchée");
+    if (refphotos.current) {
+      refphotos.current.click();
+    } else {
+      console.error("Référence à l'input file non trouvée");
+    }
   };
 
   const ChangePicture = (e) => {
+    console.log("ChangePicture appelé");
     const file = e.target.files[0];
     if (file) {
+      console.log("Fichier sélectionné:", {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      });
+
       if (file.size <= 8 * 1024 * 1024) {
         const read = new FileReader();
         read.onloadend = () => {
+          console.log(
+            "Image chargée avec succès, longueur:",
+            read.result.length
+          );
           setShowPhoto(read.result);
+          setPublication(true);
+        };
+        read.onerror = (error) => {
+          console.error("Erreur lors de la lecture du fichier:", error);
+          alert("Erreur lors de la lecture de l'image");
         };
         read.readAsDataURL(file);
       } else {
-        alert("la taille de l'image est trop grande");
+        console.error("Image trop grande:", file.size);
+        alert("La taille de l'image est trop grande (max 8MB)");
+        setShowPhoto(null);
       }
+    } else {
+      console.log("Aucun fichier sélectionné dans ChangePicture");
+      setShowPhoto(null);
     }
   };
 
@@ -734,7 +769,7 @@ const Status = () => {
 
       console.log("État actuel:", {
         visualisationPhoto,
-        showPhoto,
+        showPhoto: showPhoto ? "Photo présente" : "Pas de photo",
         visualisationVideo,
         showVideo,
         visualisationAudio,
@@ -752,8 +787,12 @@ const Status = () => {
           type: "image",
           content: showPhoto,
           texte: "",
-          styles: {},
+          styles: {
+            filter: filterPhoto || "none",
+          },
         };
+      } else if (visualisationPhoto && !showPhoto) {
+        throw new Error("Aucune photo sélectionnée");
       } else if (visualisationVideo && showVideo) {
         console.log("Création d'un statut vidéo");
         statutData = {
@@ -826,6 +865,7 @@ const Status = () => {
 
   const handleEmojiSelect = (emoji) => {
     setSelectedEmoji(emoji);
+    setVisualisationEmoji(false);
   };
 
   const ChangeFontText = (font) => {
@@ -1063,11 +1103,15 @@ const Status = () => {
                         publication={publication}
                         isMobileEmojiMode={isMobileEmojiMode}
                         setPublication={setPublication}
+                        setSelectedEmoji={setSelectedEmoji}
                       />
                     </div>
                   )}
                   {visualisationEmoji && (
-                    <Emoji onEmojiSelect={handleEmojiSelect} />
+                    <Emoji
+                      onEmojiSelect={handleEmojiSelect}
+                      selectedEmoji={selectedEmoji}
+                    />
                   )}
                   {visualisationPhoto && (
                     <div>
@@ -1075,6 +1119,7 @@ const Status = () => {
                         showPhoto={showPhoto}
                         filterPhoto={filterPhoto}
                         setPublication={setPublication}
+                        onPhotoSelect={SelectPhoto}
                       />
                       {mobileEmojis.map((emoji) => (
                         <div
@@ -1139,7 +1184,11 @@ const Status = () => {
                     <FontStyle ChangeFontText={ChangeFontText} />
                   )}
                   {visualisationFiltre && (
-                    <FilterImage ChangeFilter={ChangeFilter} />
+                    <FilterImage
+                      setFilter={ChangeFilter}
+                      setMenuaction={setMenuaction}
+                      setSeeButton={setSeeButton}
+                    />
                   )}
                   {visualisationEmojiMobile && (
                     <EmojiMobile onEmojSelect={handleMobileEmojiClick} />
@@ -1193,7 +1242,6 @@ const Status = () => {
                             SelectPhoto();
                           }}
                         />
-
                         <input
                           type="file"
                           name=""
@@ -1405,6 +1453,9 @@ const Status = () => {
                       maxWidth: "100%",
                       maxHeight: "100%",
                       objectFit: "contain",
+                      filter:
+                        selectedUser.statuses[currentStatusIndex].styles
+                          ?.filter || "none",
                     }}
                   />
                 )}
