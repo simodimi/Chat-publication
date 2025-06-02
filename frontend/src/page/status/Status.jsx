@@ -144,6 +144,7 @@ const Status = () => {
   };
 
   const audioview = () => {
+    console.log("Activation de la vue audio");
     setVisualisationAudio(true);
     setVisualisationTexte(false);
     setVisualisationEmoji(false);
@@ -157,6 +158,15 @@ const Status = () => {
     setVisualisationEmojiMobile(false);
     setVisualisationFont(false);
     setVisualisationSelfieVideo(false);
+    setStyleButton(false);
+    setSizeButton(false);
+    setFiltreButton(false);
+    setBgButton(false);
+    setColorButton(false);
+    setSelfieButton(false);
+    setVideoButton(false);
+    setEmojiButton(false);
+    setMenuaction(false);
   };
 
   const textview = () => {
@@ -1155,7 +1165,12 @@ const Status = () => {
                       )}
                     </div>
                   </div>
-                  {visualisationAudio && <Audio onSave={handleAudioSave} />}
+                  {visualisationAudio && (
+                    <Audio
+                      onSave={handleAudioSave}
+                      setPublication={setPublication}
+                    />
+                  )}
                   {visualisationTexte && (
                     <div className="">
                       <Sms

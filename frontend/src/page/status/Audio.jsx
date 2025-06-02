@@ -2,11 +2,11 @@ import React, { useRef } from "react";
 import "./status.css";
 import { TbPointFilled } from "react-icons/tb";
 import { IoSend } from "react-icons/io5";
-import { FaMicrophone, FaStop } from "react-icons/fa";
+import { FaPause, FaPlay, FaMicrophone, FaStop } from "react-icons/fa";
 import { RiDeleteBin3Fill } from "react-icons/ri";
 import { useState, useEffect } from "react";
 
-const Audio = ({ onSave }) => {
+const Audio = ({ onSave, setPublication }) => {
   const [seeSecondary, setSeeSecondary] = useState(true);
   const [loading, setLoading] = useState(false); //statut de chargement de l'audio
   const [seegeneral, setSeegeneral] = useState(false);
@@ -270,115 +270,158 @@ const Audio = ({ onSave }) => {
         .getTracks()
         .forEach((track) => track.stop());
     }
+    setSeegeneral(false);
   };
+  useEffect(() => {
+    if (audioBlob) {
+      setPublication(true);
+    } else {
+      setPublication(false);
+    }
+  }, [audioBlob]);
 
   return (
-    <>
-      <div className="ReadAudio">
-        <div className="" id="ReadAudio">
-          <div className="" id="SubReadAudio">
-            {seegeneral && (
-              <>
-                <div className="CallOption">
-                  <p>
-                    <span className="ButtonMenu" onClick={ondeleteAudios}>
-                      supprimer
-                    </span>
-                    <label>Supprimer</label>
-                  </p>
+    <div className="ReadAudio">
+      <div id="SubReadAudio">
+        {seegeneral ? (
+          <div className="">
+            {/* <div className="audio-preview-container">
+            <div className="CallOption">
+              <p>
+                <span
+                  className="ButtonMenu"
+                  onClick={ondeleteAudios}
+                  style={{ cursor: "pointer" }}
+                >
+                  supprimer
+                </span>
+                <label>Supprimer</label>
+              </p>
+            </div>
+            <div className="Showrecorder">
+              {loading ? (
+                <div className="loading">
+                  <div className="loader"></div>
                 </div>
-                <div className="Showrecorder">
-                  {loading ? (
-                    <div className="loading">
-                      <div className="loader"></div>
-                    </div>
-                  ) : (
-                    audioURL && <audio src={audioURL} controls />
-                  )}
+              ) : (
+                <div className="">
+                  {audioURL && <audio src={audioURL} controls />}
                 </div>
-              </>
-            )}
-            {seeSecondary && (
-              <>
-                <p>
-                  {!statutrecorder ? (
-                    <span className="ButtonMenu">
-                      <TbPointFilled />
-                    </span>
-                  ) : (
-                    <span className="ButtonMenu">
-                      <TbPointFilled style={{ color: "green" }} />
-                    </span>
-                  )}
+              )}
+            </div>
+          </div> */}
+          </div>
+        ) : (
+          <div className="audio-recorder-container">
+            <div
+              className="CallOption"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "flex-start",
+              }}
+            >
+              {startAudio ? (
+                <p
+                  onClick={StartAudio}
+                  style={{ cursor: "pointer" }}
+                  className="start-button"
+                >
                   <span className="ButtonMenu">
-                    <canvas ref={canvasRef} width="150" height="50"></canvas>
-                  </span>
-                  <span className="ButtonMenu">
-                    {Math.floor(timer / 60) < 10 ? "0" : ""}
-                    {Math.floor(timer / 60)}:
-                    {Math.floor(timer % 60) < 10 ? "0" : ""}
-                    {Math.floor(timer % 60)}
-                  </span>
-
-                  <span className="ButtonMenu">
-                    {" "}
-                    <IoSend onClick={showrecorder} />
+                    <FaMicrophone color="blue" />
                   </span>
                 </p>
-                <div className="CallOption">
-                  {startAudio && (
-                    <p>
-                      <span className="ButtonMenu">
-                        <FaMicrophone />
-                      </span>
-                      <label>Démarrer</label>
-                    </p>
-                  )}
+              ) : (
+                <div className="recording-controls">
                   {statutpauseLogo && (
-                    <>
+                    <button
+                      onClick={isRecording ? stopRecording : startRecording}
+                      className="ButtonMenu"
+                      style={{
+                        cursor: "pointer",
+                        height: "27px",
+                      }}
+                    >
                       {isRecording ? (
                         <>
-                          <button
-                            onClick={stopRecording}
-                            className="audio-button"
-                          >
-                            <FaStop /> Arrêter
-                          </button>
+                          <FaStop color="green" />
                         </>
                       ) : (
                         <>
-                          <button
-                            onClick={startRecording}
-                            className="audio-button"
-                          >
-                            <FaMicrophone /> Démarrer
-                          </button>
+                          <FaMicrophone />
                         </>
                       )}
-                    </>
+                    </button>
                   )}
-                  <p>
-                    <span className="ButtonMenu">
-                      <RiDeleteBin3Fill onClick={ondeleteAudio} />
-                    </span>
-                    <label>supprimer</label>
-                  </p>
                 </div>
-              </>
-            )}
+              )}
+
+              {/* Bouton de suppression
+              <p className="start-button">
+                <span
+                  className="ButtonMenu"
+                  onClick={ondeleteAudio}
+                  style={{ cursor: "pointer" }}
+                >
+                  <RiDeleteBin3Fill color="red" />
+                </span>
+              </p> */}
+            </div>
+
+            <div className="audio-status-bar">
+              <span className="ButtonMenu">
+                <TbPointFilled
+                  style={{ color: statutrecorder ? "green" : "inherit" }}
+                />
+              </span>
+
+              <span className="ButtonMenu">
+                <canvas
+                  ref={canvasRef}
+                  width="150"
+                  height="90"
+                  className="audio-visualization"
+                />
+              </span>
+
+              {/* Timer */}
+              <span className="ButtonMenu timer-display">
+                {formatTime(timer)}
+              </span>
+
+              {/* Bouton d'envoi */}
+              <span
+                className="ButtonMenu"
+                onClick={showrecorder}
+                style={{ cursor: "pointer" }}
+              >
+                <IoSend />
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {audioBlob && (
-        <div className="audio-preview">
-          <audio src={audioBlob} controls />
-          <button onClick={saveRecording} className="save-audio-button">
-            Envoyer
-          </button>
-        </div>
-      )}
-    </>
+      <div className="audioResult">
+        {audioBlob && (
+          <div className="audio-preview">
+            <audio src={audioBlob} controls />
+            <div className="" style={{ display: "flex", gap: "10px" }}>
+              {/*  <button onClick={saveRecording} className="save-audio-button">
+                Envoyer
+              </button>*/}
+              <button
+                onClick={deleteRecording}
+                className="save-audio-button"
+                style={{ backgroundColor: "red" }}
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
